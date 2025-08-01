@@ -22,6 +22,7 @@ export class LoginComponent implements OnInit {
   readonly errorMessage = signal('');
   readonly showPassword = signal(false);
   readonly returnUrl = signal('');
+  readonly focusedFields = signal<Set<string>>(new Set());
 
   // Form setup
   readonly loginForm: FormGroup = this.formBuilder.group({
@@ -148,5 +149,24 @@ export class LoginComponent implements OnInit {
       password: 'Password'
     };
     return labels[fieldName] || fieldName;
+  }
+
+  // Focus tracking methods
+  onFieldFocus(fieldName: string): void {
+    const currentFocused = this.focusedFields();
+    const newFocused = new Set(currentFocused);
+    newFocused.add(fieldName);
+    this.focusedFields.set(newFocused);
+  }
+
+  onFieldBlur(fieldName: string): void {
+    const currentFocused = this.focusedFields();
+    const newFocused = new Set(currentFocused);
+    newFocused.delete(fieldName);
+    this.focusedFields.set(newFocused);
+  }
+
+  isFieldFocused(fieldName: string): boolean {
+    return this.focusedFields().has(fieldName);
   }
 }
