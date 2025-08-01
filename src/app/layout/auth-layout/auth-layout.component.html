@@ -1,0 +1,74 @@
+<div class="auth-layout">
+  <!-- Left Panel - Branding and Features -->
+  <div class="auth-branding">
+    <div class="branding-content">
+      <!-- Logo and Title -->
+      <div class="brand-header">
+        <div class="brand-logo">
+          <span class="logo-icon">💰</span>
+          <h1 class="brand-title">E-Fund Tracker</h1>
+        </div>
+        <p class="brand-subtitle">Government Financial Management System</p>
+      </div>
+
+      <!-- Features List -->
+      <div class="features-section">
+        <h3 class="features-title">Why Choose E-Fund Tracker?</h3>
+        <div class="features-list">
+          <div 
+            *ngFor="let feature of features" 
+            class="feature-item"
+          >
+            <div class="feature-icon">{{ feature.icon }}</div>
+            <div class="feature-content">
+              <h4 class="feature-title">{{ feature.title }}</h4>
+              <p class="feature-description">{{ feature.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div class="trust-indicators">
+        <div class="trust-item">
+          <span class="trust-icon">🛡️</span>
+          <span class="trust-text">Bank-level Security</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon">✅</span>
+          <span class="trust-text">Audit Compliant</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon">🔒</span>
+          <span class="trust-text">Data Encrypted</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="branding-footer">
+      <p>&copy; {{ currentYear }} Government Financial Management System</p>
+      <div class="footer-links">
+        <a href="#" class="footer-link">Privacy Policy</a>
+        <span class="separator">•</span>
+        <a href="#" class="footer-link">Terms of Service</a>
+        <span class="separator">•</span>
+        <a href="#" class="footer-link">Support</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel - Authentication Form -->
+  <div class="auth-content">
+    <div class="auth-container">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <!-- Background Elements -->
+  <div class="background-elements">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+  </div>
+</div>

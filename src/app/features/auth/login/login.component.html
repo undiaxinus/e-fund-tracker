@@ -10,9 +10,9 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <!-- Error Message -->
-      <div *ngIf="errorMessage" class="error-message">
+      <div *ngIf="errorMessage()" class="error-message">
         <i class="icon-error">⚠️</i>
-        {{ errorMessage }}
+        {{ errorMessage() }}
       </div>
 
       <!-- Email Field -->
@@ -39,7 +39,7 @@
         <label for="password">Password</label>
         <div class="input-wrapper">
           <input
-            [type]="showPassword ? 'text' : 'password'"
+            [type]="showPassword() ? 'text' : 'password'"
             id="password"
             formControlName="password"
             placeholder="Enter your password"
@@ -50,9 +50,9 @@
             type="button"
             class="password-toggle"
             (click)="togglePasswordVisibility()"
-            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
           >
-            {{ showPassword ? '🙈' : '👁️' }}
+            {{ showPassword() ? '🙈' : '👁️' }}
           </button>
         </div>
         <div *ngIf="isFieldInvalid('password')" class="field-error">
@@ -80,10 +80,10 @@
       <button
         type="submit"
         class="login-button"
-        [disabled]="isLoading || loginForm.invalid"
+        [disabled]="!canSubmit()"
       >
-        <span *ngIf="isLoading" class="loading-spinner">⏳</span>
-        <span *ngIf="!isLoading">🔐 Sign In</span>
+        <span *ngIf="isLoading()" class="loading-spinner">⏳</span>
+        <span *ngIf="!isLoading()">🔐 Sign In</span>
       </button>
     </form>
 
@@ -96,7 +96,4 @@
       </div>
     </div>
   </div>
-
-  <!-- Background Pattern -->
-  <div class="background-pattern"></div>
 </div>

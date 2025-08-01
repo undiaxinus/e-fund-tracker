@@ -50,6 +50,30 @@ export class AuthService {
 
   async signIn(email: string, password: string): Promise<{ success: boolean; error?: string }> {
     try {
+      // Check if Supabase is configured
+      if (!this.supabaseService.client) {
+        // Demo mode - mock authentication
+        if (email && password) {
+          const mockUser: AppUser = {
+            id: 'demo-user-id',
+            email: email,
+            username: email.split('@')[0],
+            firstName: 'Demo',
+            lastName: 'User',
+            role: 'ADMIN',
+            department: 'IT Department',
+            isActive: true
+          };
+          
+          this.currentUserSubject.next(mockUser);
+          this.isAuthenticatedSubject.next(true);
+          this.router.navigate(['/dashboard']);
+          return { success: true };
+        } else {
+          return { success: false, error: 'Please enter email and password' };
+        }
+      }
+
       const { data, error } = await this.supabaseService.signIn(email, password);
       
       if (error) {

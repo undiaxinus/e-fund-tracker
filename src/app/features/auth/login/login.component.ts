@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -12,33 +12,36 @@ import { AuthService } from '../../../core/auth/auth.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
-  isLoading = false;
-  errorMessage = '';
-  returnUrl = '';
-  showPassword = false;
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
-    this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false]
-    });
-  }
+  // Signals for reactive state management
+  readonly isLoading = signal(false);
+  readonly errorMessage = signal('');
+  readonly showPassword = signal(false);
+  readonly returnUrl = signal('');
+
+  // Form setup
+  readonly loginForm: FormGroup = this.formBuilder.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [false]
+  });
+
+  // Computed properties
+  readonly isFormValid = computed(() => this.loginForm.valid);
+  readonly canSubmit = computed(() => this.isFormValid() && !this.isLoading());
 
   ngOnInit(): void {
     // Get return url from route parameters or default to '/dashboard'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || '/dashboard');
 
     // Check if user is already authenticated
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {
       if (isAuthenticated) {
-        this.router.navigate([this.returnUrl]);
+        this.router.navigate([this.returnUrl()]);
       }
     });
   }
@@ -49,8 +52,8 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
     const { email, password } = this.loginForm.value;
 
@@ -59,20 +62,20 @@ export class LoginComponent implements OnInit {
       
       if (result.success) {
         // Redirect to return URL or dashboard
-        this.router.navigate([this.returnUrl]);
+        this.router.navigate([this.returnUrl()]);
       } else {
-        this.errorMessage = result.error || 'Login failed. Please try again.';
+        this.errorMessage.set(result.error || 'Login failed. Please try again.');
       }
     } catch (error: any) {
-      this.errorMessage = 'An unexpected error occurred. Please try again.';
+      this.errorMessage.set('An unexpected error occurred. Please try again.');
       console.error('Login error:', error);
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
 
   togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
+    this.showPassword.set(!this.showPassword());
   }
 
   onForgotPassword(): void {

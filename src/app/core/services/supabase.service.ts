@@ -7,20 +7,27 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class SupabaseService {
-  private supabase: SupabaseClient;
+  private supabase!: SupabaseClient;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
-    this.supabase = createClient(
-      environment.supabaseUrl,
-      environment.supabaseAnonKey
-    );
+    // Temporarily disable Supabase for demo purposes
+    // TODO: Replace with actual Supabase URL and key
+    if (environment.supabaseUrl !== 'YOUR_SUPABASE_URL' && environment.supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY') {
+      this.supabase = createClient(
+        environment.supabaseUrl,
+        environment.supabaseAnonKey
+      );
 
-    // Listen for auth changes
-    this.supabase.auth.onAuthStateChange((event, session) => {
-      this.currentUserSubject.next(session?.user ?? null);
-    });
+      // Listen for auth changes
+      this.supabase.auth.onAuthStateChange((event, session) => {
+        this.currentUserSubject.next(session?.user ?? null);
+      });
+    } else {
+      // Mock Supabase client for demo
+      console.warn('Supabase not configured - using mock client for demo');
+    }
   }
 
   get client(): SupabaseClient {
