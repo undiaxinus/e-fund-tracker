@@ -23,33 +23,34 @@ export class LoginComponent implements OnInit {
   readonly showPassword = signal(false);
   readonly returnUrl = signal('');
   readonly focusedFields = signal<Set<string>>(new Set());
+  readonly showDemoUsers = signal(false);
 
   // Form setup
   readonly loginForm: FormGroup = this.formBuilder.group({
-    email: ['admin@efund.gov', [Validators.required, Validators.email]],
-    password: ['password123', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(3)]],
     rememberMe: [false]
   });
+
+  // Demo users for quick login
+  readonly demoUsers = this.authService.getDemoUsers();
 
   // Computed properties
   readonly isFormValid = computed(() => {
     const valid = this.loginForm.valid;
     const emailControl = this.loginForm.get('email');
     const passwordControl = this.loginForm.get('password');
-    console.log('Form valid:', valid);
-    console.log('Email valid:', emailControl?.valid, 'Email errors:', emailControl?.errors);
-    console.log('Password valid:', passwordControl?.valid, 'Password errors:', passwordControl?.errors);
     return valid;
   });
+  
   readonly canSubmit = computed(() => {
     const canSubmit = this.isFormValid() && !this.isLoading();
-    console.log('Can submit:', canSubmit, 'Form valid:', this.isFormValid(), 'Loading:', this.isLoading());
     return canSubmit;
   });
 
   ngOnInit(): void {
-    // Get return url from route parameters or default to '/admin'
-    this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || '/admin');
+    // Get return url from route parameters or default to '/dashboard'
+    this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || '/dashboard');
 
     // Check if user is already authenticated
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {
@@ -74,8 +75,8 @@ export class LoginComponent implements OnInit {
       const result = await this.authService.signIn(email, password);
       
       if (result.success) {
-        // Redirect to return URL or dashboard
-        this.router.navigate([this.returnUrl()]);
+        // The AuthService will handle navigation based on user role
+        // No need to navigate here as it's handled in the service
       } else {
         this.errorMessage.set(result.error || 'Login failed. Please try again.');
       }
@@ -87,8 +88,44 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  // Quick login with demo user
+  async quickLogin(demoUser: { email: string; role: string; name: string }): Promise<void> {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    try {
+      // Find the password for this demo user
+      const password = this.getPasswordForDemoUser(demoUser.email);
+      const result = await this.authService.signIn(demoUser.email, password);
+      
+      if (result.success) {
+        // Success - AuthService will handle navigation
+      } else {
+        this.errorMessage.set(result.error || 'Login failed. Please try again.');
+      }
+    } catch (error: any) {
+      this.errorMessage.set('An unexpected error occurred. Please try again.');
+      console.error('Quick login error:', error);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  private getPasswordForDemoUser(email: string): string {
+    const passwordMap: { [key: string]: string } = {
+      'admin@efund.gov': 'password123',
+      'test@example.com': 'demo123',
+      'user@test.com': '123456'
+    };
+    return passwordMap[email] || '';
+  }
+
   togglePasswordVisibility(): void {
     this.showPassword.set(!this.showPassword());
+  }
+
+  toggleDemoUsers(): void {
+    this.showDemoUsers.set(!this.showDemoUsers());
   }
 
   onForgotPassword(): void {
@@ -168,5 +205,21 @@ export class LoginComponent implements OnInit {
 
   isFieldFocused(fieldName: string): boolean {
     return this.focusedFields().has(fieldName);
+  }
+
+  // Get role badge class
+  getRoleBadgeClass(role: string): string {
+    const roleClasses: { [key: string]: string } = {
+      'ADMIN': 'bg-red-100 text-red-800',
+      'ENCODER': 'bg-blue-100 text-blue-800',
+      'VIEWER': 'bg-green-100 text-green-800'
+    };
+    return roleClasses[role] || 'bg-gray-100 text-gray-800';
+  }
+
+  // Generate user initials
+  getUserInitials(name: string): string {
+    if (!name) return '';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 }

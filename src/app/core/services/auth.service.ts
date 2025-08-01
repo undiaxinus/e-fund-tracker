@@ -15,6 +15,12 @@ export interface AppUser {
   isActive: boolean;
 }
 
+interface MockUser {
+  email: string;
+  password: string;
+  user: AppUser;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,6 +29,52 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  // Mock users for demo mode
+  private mockUsers: MockUser[] = [
+    {
+      email: 'admin@efund.gov',
+      password: 'password123',
+      user: {
+        id: 'admin-user-id',
+        email: 'admin@efund.gov',
+        username: 'admin',
+        firstName: 'System',
+        lastName: 'Administrator',
+        role: 'ADMIN',
+        department: 'IT Department',
+        isActive: true
+      }
+    },
+    {
+      email: 'test@example.com',
+      password: 'demo123',
+      user: {
+        id: 'encoder-user-id',
+        email: 'test@example.com',
+        username: 'encoder',
+        firstName: 'Data',
+        lastName: 'Encoder',
+        role: 'ENCODER',
+        department: 'Finance Department',
+        isActive: true
+      }
+    },
+    {
+      email: 'user@test.com',
+      password: '123456',
+      user: {
+        id: 'viewer-user-id',
+        email: 'user@test.com',
+        username: 'viewer',
+        firstName: 'Report',
+        lastName: 'Viewer',
+        role: 'VIEWER',
+        department: 'Audit Department',
+        isActive: true
+      }
+    }
+  ];
 
   constructor(
     private supabaseService: SupabaseService,
@@ -53,25 +105,29 @@ export class AuthService {
       // Check if Supabase is configured
       if (!this.supabaseService.client) {
         // Demo mode - mock authentication
-        if (email && password) {
-          const mockUser: AppUser = {
-            id: 'demo-user-id',
-            email: email,
-            username: email.split('@')[0],
-            firstName: 'Demo',
-            lastName: 'User',
-            role: 'ADMIN',
-            department: 'IT Department',
-            isActive: true
-          };
-          
-          this.currentUserSubject.next(mockUser);
-          this.isAuthenticatedSubject.next(true);
-          this.router.navigate(['/dashboard']);
-          return { success: true };
-        } else {
+        if (!email || !password) {
           return { success: false, error: 'Please enter email and password' };
         }
+
+        // Find matching mock user
+        const mockUser = this.mockUsers.find(user => 
+          user.email.toLowerCase() === email.toLowerCase() && 
+          user.password === password
+        );
+
+        if (!mockUser) {
+          return { success: false, error: 'Invalid email or password' };
+        }
+
+        // Set the authenticated user
+        this.currentUserSubject.next(mockUser.user);
+        this.isAuthenticatedSubject.next(true);
+        
+        // Navigate to appropriate dashboard based on role
+        const dashboardRoute = this.getDashboardRouteForRole(mockUser.user.role);
+        this.router.navigate([dashboardRoute]);
+        
+        return { success: true };
       }
 
       const { data, error } = await this.supabaseService.signIn(email, password);
@@ -96,6 +152,19 @@ export class AuthService {
       return { success: false, error: 'Login failed' };
     } catch (error: any) {
       return { success: false, error: error.message };
+    }
+  }
+
+  private getDashboardRouteForRole(role: string): string {
+    switch (role) {
+      case 'ADMIN':
+        return '/admin/dashboard';
+      case 'ENCODER':
+        return '/encoder/entries';
+      case 'VIEWER':
+        return '/viewer/dashboard';
+      default:
+        return '/dashboard';
     }
   }
 
@@ -156,6 +225,8 @@ export class AuthService {
     }
     
     await this.supabaseService.signOut();
+    this.currentUserSubject.next(null);
+    this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/auth/login']);
   }
 
@@ -209,6 +280,36 @@ export class AuthService {
 
   canManageUsers(): boolean {
     return this.isAdmin();
+  }
+
+  // Method to get available demo users for testing
+  getDemoUsers(): { email: string; role: string; name: string }[] {
+    return this.mockUsers.map(mockUser => ({
+      email: mockUser.email,
+      role: mockUser.user.role,
+      name: `${mockUser.user.firstName} ${mockUser.user.lastName}`
+    }));
+  }
+
+  // Method to test authentication for all demo users
+  async testAllDemoUsers(): Promise<{ [key: string]: boolean }> {
+    const results: { [key: string]: boolean } = {};
+    
+    for (const mockUser of this.mockUsers) {
+      try {
+        const result = await this.signIn(mockUser.email, mockUser.password);
+        results[mockUser.email] = result.success;
+        
+        // Sign out after each test
+        if (result.success) {
+          await this.signOut();
+        }
+      } catch (error) {
+        results[mockUser.email] = false;
+      }
+    }
+    
+    return results;
   }
 
   private async logAuditAction(action: string, entityType: string, entityId?: string) {
