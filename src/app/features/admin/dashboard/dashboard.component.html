@@ -1,156 +1,198 @@
-<div class="dashboard-container">
+<div class="min-h-screen bg-gray-50 p-6">
   <!-- Header Section -->
-  <div class="dashboard-header">
-    <div class="welcome-section">
-      <h1>{{ getGreeting() }}, {{ getUserDisplayName() }}! 👋</h1>
-      <p class="role-badge">{{ getRoleDisplayName() }}</p>
-      <p class="date-info">{{ currentDate | date:'fullDate' }}</p>
-    </div>
-    <div class="header-actions">
-      <button class="refresh-btn" (click)="refreshData()" [disabled]="isLoading">
-        <span [class.spinning]="isLoading">🔄</span>
-        Refresh
-      </button>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex-1">
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">{{ getGreeting() }}, {{ getUserDisplayName() }}! 👋</h1>
+        <p class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-full mb-2">{{ getRoleDisplayName() }}</p>
+        <p class="text-gray-600">{{ currentDate | date:'fullDate' }}</p>
+      </div>
+      <div class="flex-shrink-0">
+        <button class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" 
+                (click)="refreshData()" 
+                [disabled]="isLoading">
+          <span class="text-lg" [class.animate-spin]="isLoading">🔄</span>
+          Refresh
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <div class="loading-spinner">⏳</div>
-    <p>Loading dashboard data...</p>
+  <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-12">
+    <div class="text-4xl mb-4 animate-spin">⏳</div>
+    <p class="text-gray-600">Loading dashboard data...</p>
   </div>
 
   <!-- Dashboard Content -->
-  <div *ngIf="!isLoading" class="dashboard-content">
+  <div *ngIf="!isLoading" class="space-y-6">
     
     <!-- Statistics Cards -->
-    <div class="stats-grid">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <!-- Total Disbursements -->
-      <div class="stat-card primary">
-        <div class="stat-icon">📊</div>
-        <div class="stat-content">
-          <h3>Total Disbursements</h3>
-          <p class="stat-number">{{ stats.totalDisbursements | number }}</p>
-          <p class="stat-amount">{{ formatCurrency(stats.totalAmount) }}</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <h3 class="text-sm font-medium text-gray-600 mb-1">Total Disbursements</h3>
+            <p class="text-2xl font-bold text-gray-900 mb-1">{{ stats.totalDisbursements | number }}</p>
+            <p class="text-lg font-semibold text-green-600">{{ formatCurrency(stats.totalAmount) }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <span class="text-2xl">📊</span>
+          </div>
         </div>
       </div>
 
       <!-- Monthly Disbursements -->
-      <div class="stat-card secondary">
-        <div class="stat-icon">📅</div>
-        <div class="stat-content">
-          <h3>This Month</h3>
-          <p class="stat-number">{{ stats.monthlyDisbursements | number }}</p>
-          <p class="stat-amount">{{ formatCurrency(stats.monthlyAmount) }}</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <h3 class="text-sm font-medium text-gray-600 mb-1">This Month</h3>
+            <p class="text-2xl font-bold text-gray-900 mb-1">{{ stats.monthlyDisbursements | number }}</p>
+            <p class="text-lg font-semibold text-blue-600">{{ formatCurrency(stats.monthlyAmount) }}</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <span class="text-2xl">📅</span>
+          </div>
         </div>
       </div>
 
       <!-- Pending Items -->
-      <div class="stat-card warning">
-        <div class="stat-icon">⏳</div>
-        <div class="stat-content">
-          <h3>Pending Review</h3>
-          <p class="stat-number">{{ stats.pendingCount | number }}</p>
-          <p class="stat-label">Items awaiting approval</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <h3 class="text-sm font-medium text-gray-600 mb-1">Pending Review</h3>
+            <p class="text-2xl font-bold text-gray-900 mb-1">{{ stats.pendingCount | number }}</p>
+            <p class="text-sm text-gray-500">Items awaiting approval</p>
+          </div>
+          <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <span class="text-2xl">⏳</span>
+          </div>
         </div>
       </div>
 
       <!-- Quick Actions -->
-      <div class="stat-card action" *ngIf="canEdit()">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-content">
-          <h3>Quick Actions</h3>
-          <div class="quick-actions">
-            <a routerLink="/disbursements/new" class="quick-action-btn">
-              ➕ New Entry
-            </a>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200" *ngIf="canEdit()">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <h3 class="text-sm font-medium text-gray-600 mb-1">Quick Actions</h3>
+            <div class="mt-3">
+              <a routerLink="/disbursements/new" 
+                 class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                ➕ New Entry
+              </a>
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <span class="text-2xl">⚡</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Classification Breakdown -->
-    <div class="classification-section">
-      <h2>💼 Classification Breakdown</h2>
-      <div class="classification-grid">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <span class="text-2xl">💼</span>
+        Classification Breakdown
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <div 
-          class="classification-card"
+          class="bg-gray-50 rounded-lg p-4 border border-gray-200"
           *ngFor="let item of stats.classificationBreakdown | keyvalue"
         >
-          <div class="classification-header">
-            <span class="classification-icon">{{ getClassificationIcon(item.key) }}</span>
-            <h4>{{ item.key }}</h4>
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-xl">{{ getClassificationIcon(item.key) }}</span>
+            <h4 class="font-medium text-gray-900">{{ item.key }}</h4>
           </div>
-          <div class="classification-amount">
+          <div class="text-lg font-semibold text-gray-900 mb-2">
             {{ formatCurrency(item.value) }}
           </div>
-          <div 
-            class="classification-bar"
-            [style.background-color]="getClassificationColor(item.key)"
-            [style.width.%]="(item.value / stats.totalAmount) * 100"
-          ></div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              class="h-2 rounded-full transition-all duration-300"
+              [style.background-color]="getClassificationColor(item.key)"
+              [style.width.%]="(item.value / stats.totalAmount) * 100"
+            ></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Recent Transactions -->
-    <div class="recent-transactions-section">
-      <div class="section-header">
-        <h2>📋 Recent Transactions</h2>
-        <a routerLink="/disbursements" class="view-all-link">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <span class="text-2xl">📋</span>
+          Recent Transactions
+        </h2>
+        <a routerLink="/disbursements" 
+           class="text-indigo-600 hover:text-indigo-700 font-medium transition-colors duration-200">
           View All →
         </a>
       </div>
       
-      <div class="transactions-container">
-        <div *ngIf="recentTransactions.length === 0" class="no-data">
-          <div class="no-data-icon">📄</div>
-          <p>No recent transactions found</p>
-          <a *ngIf="canEdit()" routerLink="/disbursements/new" class="create-first-btn">
+      <div class="min-h-[200px]">
+        <div *ngIf="recentTransactions.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+          <div class="text-6xl mb-4">📄</div>
+          <p class="text-gray-600 mb-4">No recent transactions found</p>
+          <a *ngIf="canEdit()" 
+             routerLink="/disbursements/new" 
+             class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
             Create First Entry
           </a>
         </div>
 
-        <div *ngIf="recentTransactions.length > 0" class="transactions-table">
-          <div class="table-header">
-            <div class="col-disbursement">Disbursement #</div>
-            <div class="col-payee">Payee</div>
-            <div class="col-amount">Amount</div>
-            <div class="col-classification">Type</div>
-            <div class="col-date">Date</div>
-            <div class="col-status">Status</div>
-          </div>
-          
-          <div 
-            class="table-row"
-            *ngFor="let transaction of recentTransactions"
-            [routerLink]="['/disbursements', transaction.id]"
-          >
-            <div class="col-disbursement">
-              <strong>{{ transaction.disbursementNo }}</strong>
+        <div *ngIf="recentTransactions.length > 0" class="overflow-x-auto">
+          <div class="min-w-full">
+            <!-- Table Header -->
+            <div class="bg-gray-50 border-b border-gray-200">
+              <div class="grid grid-cols-6 gap-4 px-6 py-3">
+                <div class="text-sm font-medium text-gray-700">Disbursement #</div>
+                <div class="text-sm font-medium text-gray-700">Payee</div>
+                <div class="text-sm font-medium text-gray-700">Amount</div>
+                <div class="text-sm font-medium text-gray-700">Type</div>
+                <div class="text-sm font-medium text-gray-700">Date</div>
+                <div class="text-sm font-medium text-gray-700">Status</div>
+              </div>
             </div>
-            <div class="col-payee">
-              {{ transaction.payee }}
-            </div>
-            <div class="col-amount">
-              {{ formatCurrency(transaction.amount) }}
-            </div>
-            <div class="col-classification">
-              <span 
-                class="classification-badge"
-                [style.background-color]="getClassificationColor(transaction.classification)"
-              >
-                {{ getClassificationIcon(transaction.classification) }}
-                {{ transaction.classification }}
-              </span>
-            </div>
-            <div class="col-date">
-              {{ formatDate(transaction.disbursementDate) }}
-            </div>
-            <div class="col-status">
-              <span [class]="getStatusClass(transaction.status)">
-                {{ transaction.status }}
-              </span>
+            
+            <!-- Table Rows -->
+            <div 
+              class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+              *ngFor="let transaction of recentTransactions"
+              [routerLink]="['/disbursements', transaction.id]"
+            >
+              <div class="grid grid-cols-6 gap-4 px-6 py-4">
+                <div class="font-medium text-gray-900">
+                  {{ transaction.disbursementNo }}
+                </div>
+                <div class="text-gray-700">
+                  {{ transaction.payee }}
+                </div>
+                <div class="font-medium text-gray-900">
+                  {{ formatCurrency(transaction.amount) }}
+                </div>
+                <div>
+                  <span 
+                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full"
+                    [style.background-color]="getClassificationColor(transaction.classification) + '20'"
+                    [style.color]="getClassificationColor(transaction.classification)"
+                  >
+                    <span>{{ getClassificationIcon(transaction.classification) }}</span>
+                    {{ transaction.classification }}
+                  </span>
+                </div>
+                <div class="text-gray-600">
+                  {{ formatDate(transaction.disbursementDate) }}
+                </div>
+                <div>
+                  <span [class]="getStatusClass(transaction.status)" 
+                        class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full">
+                    {{ transaction.status }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -158,31 +200,38 @@
     </div>
 
     <!-- Admin Section -->
-    <div *ngIf="canManageUsers()" class="admin-section">
-      <h2>⚙️ Administration</h2>
-      <div class="admin-grid">
-        <a routerLink="/admin/users" class="admin-card">
-          <div class="admin-icon">👥</div>
-          <h4>User Management</h4>
-          <p>Manage user accounts and permissions</p>
+    <div *ngIf="canManageUsers()" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <span class="text-2xl">⚙️</span>
+        Administration
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <a routerLink="/admin/users" 
+           class="group block p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200">
+          <div class="text-3xl mb-3">👥</div>
+          <h4 class="font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors duration-200">User Management</h4>
+          <p class="text-sm text-gray-600">Manage user accounts and permissions</p>
         </a>
         
-        <a routerLink="/admin/settings" class="admin-card">
-          <div class="admin-icon">⚙️</div>
-          <h4>System Settings</h4>
-          <p>Configure system parameters</p>
+        <a routerLink="/admin/settings" 
+           class="group block p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200">
+          <div class="text-3xl mb-3">⚙️</div>
+          <h4 class="font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors duration-200">System Settings</h4>
+          <p class="text-sm text-gray-600">Configure system parameters</p>
         </a>
         
-        <a routerLink="/admin/audit" class="admin-card">
-          <div class="admin-icon">📊</div>
-          <h4>Audit Logs</h4>
-          <p>View system activity logs</p>
+        <a routerLink="/admin/audit" 
+           class="group block p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200">
+          <div class="text-3xl mb-3">📊</div>
+          <h4 class="font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors duration-200">Audit Logs</h4>
+          <p class="text-sm text-gray-600">View system activity logs</p>
         </a>
         
-        <a routerLink="/reports" class="admin-card">
-          <div class="admin-icon">📈</div>
-          <h4>Reports</h4>
-          <p>Generate and export reports</p>
+        <a routerLink="/reports" 
+           class="group block p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200">
+          <div class="text-3xl mb-3">📈</div>
+          <h4 class="font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors duration-200">Reports</h4>
+          <p class="text-sm text-gray-600">Generate and export reports</p>
         </a>
       </div>
     </div>

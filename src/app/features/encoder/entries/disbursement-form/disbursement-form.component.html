@@ -1,101 +1,117 @@
-<div class="disbursement-form-container">
+<div class="min-h-screen bg-gray-50 p-6">
   <!-- Header Section -->
-  <div class="form-header">
-    <div class="header-content">
-      <h1>{{ isEditMode ? '✏️ Edit Disbursement' : '➕ New Disbursement' }}</h1>
-      <p>{{ isEditMode ? 'Update disbursement information' : 'Create a new financial disbursement record' }}</p>
-    </div>
-    <div class="header-actions">
-      <button class="secondary-btn" (click)="onCancel()">
-        ❌ Cancel
-      </button>
-      <button class="danger-btn" (click)="onReset()" *ngIf="!isEditMode">
-        🔄 Reset
-      </button>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex-1">
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">{{ isEditMode ? '✏️ Edit Disbursement' : '➕ New Disbursement' }}</h1>
+        <p class="text-gray-600">{{ isEditMode ? 'Update disbursement information' : 'Create a new financial disbursement record' }}</p>
+      </div>
+      <div class="flex gap-3">
+        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200" 
+                (click)="onCancel()">
+          ❌ Cancel
+        </button>
+        <button class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200" 
+                (click)="onReset()" 
+                *ngIf="!isEditMode">
+          🔄 Reset
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <div class="loading-spinner">⏳</div>
-    <p>Loading disbursement data...</p>
+  <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-12">
+    <div class="text-4xl mb-4 animate-spin">⏳</div>
+    <p class="text-gray-600">Loading disbursement data...</p>
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error" class="error-message">
-    <i class="error-icon">⚠️</i>
+  <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-6 flex items-center gap-3">
+    <span class="text-xl">⚠️</span>
     {{ error }}
   </div>
 
   <!-- Success Message -->
-  <div *ngIf="successMessage" class="success-message">
-    <i class="success-icon">✅</i>
+  <div *ngIf="successMessage" class="bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl mb-6 flex items-center gap-3">
+    <span class="text-xl">✅</span>
     {{ successMessage }}
   </div>
 
   <!-- Form Content -->
-  <div *ngIf="!isLoading" class="form-content">
-    <form [formGroup]="disbursementForm" (ngSubmit)="onSubmit()" class="disbursement-form">
+  <div *ngIf="!isLoading" class="max-w-4xl mx-auto">
+    <form [formGroup]="disbursementForm" (ngSubmit)="onSubmit()" class="space-y-6">
       
       <!-- Basic Information Section -->
-      <div class="form-section">
-        <h3 class="section-title">📋 Basic Information</h3>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-xl">📋</span>
+          Basic Information
+        </h3>
         
-        <div class="form-row">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <!-- Disbursement Number -->
-          <div class="form-group">
-            <label for="disbursementNo">Disbursement Number *</label>
+          <div>
+            <label for="disbursementNo" class="block text-sm font-medium text-gray-700 mb-2">
+              Disbursement Number <span class="text-red-500">*</span>
+            </label>
             <input
               type="text"
               id="disbursementNo"
               formControlName="disbursementNo"
               placeholder="Auto-generated"
-              [class.error]="isFieldInvalid('disbursementNo')"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
               readonly
             />
-            <div *ngIf="isFieldInvalid('disbursementNo')" class="field-error">
+            <div *ngIf="isFieldInvalid('disbursementNo')" class="text-red-500 text-sm mt-1">
               {{ getFieldError('disbursementNo') }}
             </div>
           </div>
 
           <!-- Disbursement Date -->
-          <div class="form-group">
-            <label for="disbursementDate">Disbursement Date *</label>
+          <div>
+            <label for="disbursementDate" class="block text-sm font-medium text-gray-700 mb-2">
+              Disbursement Date <span class="text-red-500">*</span>
+            </label>
             <input
               type="date"
               id="disbursementDate"
               formControlName="disbursementDate"
-              [class.error]="isFieldInvalid('disbursementDate')"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              [class.border-red-500]="isFieldInvalid('disbursementDate')"
             />
-            <div *ngIf="isFieldInvalid('disbursementDate')" class="field-error">
+            <div *ngIf="isFieldInvalid('disbursementDate')" class="text-red-500 text-sm mt-1">
               {{ getFieldError('disbursementDate') }}
             </div>
           </div>
         </div>
 
-        <div class="form-row">
+        <div class="mb-6">
           <!-- Payee -->
-          <div class="form-group full-width">
-            <label for="payee">Payee *</label>
-            <input
-              type="text"
-              id="payee"
-              formControlName="payee"
-              placeholder="Enter payee name or organization"
-              [class.error]="isFieldInvalid('payee')"
-            />
-            <div *ngIf="isFieldInvalid('payee')" class="field-error">
-              {{ getFieldError('payee') }}
-            </div>
+          <label for="payee" class="block text-sm font-medium text-gray-700 mb-2">
+            Payee <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="payee"
+            formControlName="payee"
+            placeholder="Enter payee name or organization"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            [class.border-red-500]="isFieldInvalid('payee')"
+          />
+          <div *ngIf="isFieldInvalid('payee')" class="text-red-500 text-sm mt-1">
+            {{ getFieldError('payee') }}
           </div>
         </div>
 
-        <div class="form-row">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Amount -->
-          <div class="form-group">
-            <label for="amount">Amount (PHP) *</label>
-            <div class="amount-input-wrapper">
-              <span class="currency-symbol">₱</span>
+          <div>
+            <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+              Amount (PHP) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-gray-500">₱</span>
               <input
                 type="number"
                 id="amount"
@@ -103,31 +119,35 @@
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                [class.error]="isFieldInvalid('amount')"
+                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                [class.border-red-500]="isFieldInvalid('amount')"
               />
             </div>
-            <div *ngIf="isFieldInvalid('amount')" class="field-error">
+            <div *ngIf="isFieldInvalid('amount')" class="text-red-500 text-sm mt-1">
               {{ getFieldError('amount') }}
             </div>
-            <div *ngIf="disbursementForm.get('amount')?.value" class="amount-preview">
+            <div *ngIf="disbursementForm.get('amount')?.value" class="text-sm text-gray-600 mt-1">
               Preview: {{ formatCurrency(disbursementForm.get('amount')?.value) }}
             </div>
           </div>
 
           <!-- Department -->
-          <div class="form-group">
-            <label for="department">Department *</label>
+          <div>
+            <label for="department" class="block text-sm font-medium text-gray-700 mb-2">
+              Department <span class="text-red-500">*</span>
+            </label>
             <select
               id="department"
               formControlName="department"
-              [class.error]="isFieldInvalid('department')"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              [class.border-red-500]="isFieldInvalid('department')"
             >
               <option value="">Select Department</option>
               <option *ngFor="let dept of departments" [value]="dept">
                 {{ dept }}
               </option>
             </select>
-            <div *ngIf="isFieldInvalid('department')" class="field-error">
+            <div *ngIf="isFieldInvalid('department')" class="text-red-500 text-sm mt-1">
               {{ getFieldError('department') }}
             </div>
           </div>
@@ -135,132 +155,153 @@
       </div>
 
       <!-- Classification Section -->
-      <div class="form-section">
-        <h3 class="section-title">🏷️ Classification</h3>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-xl">🏷️</span>
+          Classification
+        </h3>
         
-        <div class="form-row">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <!-- Classification -->
-          <div class="form-group">
-            <label for="classification">Classification *</label>
+          <div>
+            <label for="classification" class="block text-sm font-medium text-gray-700 mb-2">
+              Classification <span class="text-red-500">*</span>
+            </label>
             <select
               id="classification"
               formControlName="classification"
-              [class.error]="isFieldInvalid('classification')"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              [class.border-red-500]="isFieldInvalid('classification')"
             >
               <option value="">Select Classification</option>
               <option *ngFor="let classification of classifications" [value]="classification.value">
                 {{ classification.icon }} {{ classification.label }}
               </option>
             </select>
-            <div *ngIf="isFieldInvalid('classification')" class="field-error">
+            <div *ngIf="isFieldInvalid('classification')" class="text-red-500 text-sm mt-1">
               {{ getFieldError('classification') }}
             </div>
-            <div *ngIf="disbursementForm.get('classification')?.value" class="classification-info">
-              <small>{{ getClassificationInfo(disbursementForm.get('classification')?.value)?.description }}</small>
+            <div *ngIf="disbursementForm.get('classification')?.value" class="text-sm text-gray-600 mt-1">
+              {{ getClassificationInfo(disbursementForm.get('classification')?.value)?.description }}
             </div>
           </div>
 
           <!-- Sub-classification -->
-          <div class="form-group">
-            <label for="subClassification">Sub-classification</label>
+          <div>
+            <label for="subClassification" class="block text-sm font-medium text-gray-700 mb-2">
+              Sub-classification
+            </label>
             <input
               type="text"
               id="subClassification"
               formControlName="subClassification"
               placeholder="Optional sub-category"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
         </div>
 
-        <div class="form-row">
+        <div>
           <!-- Fund Source -->
-          <div class="form-group full-width">
-            <label for="fundSource">Fund Source *</label>
-            <select
-              id="fundSource"
-              formControlName="fundSource"
-              [class.error]="isFieldInvalid('fundSource')"
-            >
-              <option value="">Select Fund Source</option>
-              <option *ngFor="let source of fundSources" [value]="source">
-                {{ source }}
-              </option>
-            </select>
-            <div *ngIf="isFieldInvalid('fundSource')" class="field-error">
-              {{ getFieldError('fundSource') }}
-            </div>
+          <label for="fundSource" class="block text-sm font-medium text-gray-700 mb-2">
+            Fund Source <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="fundSource"
+            formControlName="fundSource"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            [class.border-red-500]="isFieldInvalid('fundSource')"
+          >
+            <option value="">Select Fund Source</option>
+            <option *ngFor="let source of fundSources" [value]="source">
+              {{ source }}
+            </option>
+          </select>
+          <div *ngIf="isFieldInvalid('fundSource')" class="text-red-500 text-sm mt-1">
+            {{ getFieldError('fundSource') }}
           </div>
         </div>
       </div>
 
       <!-- Description Section -->
-      <div class="form-section">
-        <h3 class="section-title">📝 Description & Details</h3>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="text-xl">📝</span>
+          Description & Details
+        </h3>
         
-        <div class="form-row">
+        <div class="mb-6">
           <!-- Description -->
-          <div class="form-group full-width">
-            <label for="description">Description *</label>
-            <textarea
-              id="description"
-              formControlName="description"
-              placeholder="Provide detailed description of the disbursement purpose and details"
-              rows="4"
-              [class.error]="isFieldInvalid('description')"
-            ></textarea>
-            <div *ngIf="isFieldInvalid('description')" class="field-error">
-              {{ getFieldError('description') }}
-            </div>
-            <div class="character-count">
-              {{ disbursementForm.get('description')?.value?.length || 0 }} characters
-            </div>
+          <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+            Description <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            id="description"
+            formControlName="description"
+            placeholder="Provide detailed description of the disbursement purpose and details"
+            rows="4"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+            [class.border-red-500]="isFieldInvalid('description')"
+          ></textarea>
+          <div *ngIf="isFieldInvalid('description')" class="text-red-500 text-sm mt-1">
+            {{ getFieldError('description') }}
+          </div>
+          <div class="text-sm text-gray-500 mt-1">
+            {{ disbursementForm.get('description')?.value?.length || 0 }} characters
           </div>
         </div>
 
-        <div class="form-row">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <!-- Check Number -->
-          <div class="form-group">
-            <label for="checkNo">Check Number</label>
+          <div>
+            <label for="checkNo" class="block text-sm font-medium text-gray-700 mb-2">
+              Check Number
+            </label>
             <input
               type="text"
               id="checkNo"
               formControlName="checkNo"
               placeholder="Optional check number"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
           <!-- Voucher Number -->
-          <div class="form-group">
-            <label for="voucherNo">Voucher Number</label>
+          <div>
+            <label for="voucherNo" class="block text-sm font-medium text-gray-700 mb-2">
+              Voucher Number
+            </label>
             <input
               type="text"
               id="voucherNo"
               formControlName="voucherNo"
               placeholder="Optional voucher number"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
         </div>
 
-        <div class="form-row">
+        <div>
           <!-- Remarks -->
-          <div class="form-group full-width">
-            <label for="remarks">Remarks</label>
-            <textarea
-              id="remarks"
-              formControlName="remarks"
-              placeholder="Additional notes or comments (optional)"
-              rows="3"
-            ></textarea>
-          </div>
+          <label for="remarks" class="block text-sm font-medium text-gray-700 mb-2">
+            Remarks
+          </label>
+          <textarea
+            id="remarks"
+            formControlName="remarks"
+            placeholder="Additional notes or comments (optional)"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+          ></textarea>
         </div>
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions">
-        <div class="action-buttons">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex flex-col sm:flex-row gap-3 justify-end">
           <button
             type="button"
-            class="secondary-btn"
+            class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
             (click)="onCancel()"
           >
             ❌ Cancel
@@ -268,7 +309,7 @@
           
           <button
             type="button"
-            class="danger-btn"
+            class="px-6 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200"
             (click)="onReset()"
             *ngIf="!isEditMode"
           >
@@ -277,42 +318,45 @@
           
           <button
             type="submit"
-            class="primary-btn"
+            class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             [disabled]="isSubmitting || disbursementForm.invalid || !canEdit()"
           >
-            <span *ngIf="isSubmitting" class="loading-spinner">⏳</span>
+            <span *ngIf="isSubmitting" class="inline-block animate-spin mr-2">⏳</span>
             <span *ngIf="!isSubmitting">
               {{ isEditMode ? '💾 Update Disbursement' : '➕ Create Disbursement' }}
             </span>
           </button>
         </div>
         
-        <div class="form-validation-summary" *ngIf="disbursementForm.invalid && disbursementForm.touched">
-          <h4>⚠️ Please fix the following errors:</h4>
-          <ul>
+        <div *ngIf="disbursementForm.invalid && disbursementForm.touched" class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <h4 class="font-medium text-yellow-800 mb-3 flex items-center gap-2">
+            <span>⚠️</span>
+            Please fix the following errors:
+          </h4>
+          <ul class="text-sm text-yellow-700 space-y-1">
             <li *ngIf="disbursementForm.get('disbursementNo')?.invalid && disbursementForm.get('disbursementNo')?.touched">
-              Disbursement number is required
+              • Disbursement number is required
             </li>
             <li *ngIf="disbursementForm.get('payee')?.invalid && disbursementForm.get('payee')?.touched">
-              Payee name is required (minimum 2 characters)
+              • Payee name is required (minimum 2 characters)
             </li>
             <li *ngIf="disbursementForm.get('amount')?.invalid && disbursementForm.get('amount')?.touched">
-              Valid amount is required (must be greater than 0)
+              • Valid amount is required (must be greater than 0)
             </li>
             <li *ngIf="disbursementForm.get('disbursementDate')?.invalid && disbursementForm.get('disbursementDate')?.touched">
-              Disbursement date is required
+              • Disbursement date is required
             </li>
             <li *ngIf="disbursementForm.get('description')?.invalid && disbursementForm.get('description')?.touched">
-              Description is required (minimum 10 characters)
+              • Description is required (minimum 10 characters)
             </li>
             <li *ngIf="disbursementForm.get('fundSource')?.invalid && disbursementForm.get('fundSource')?.touched">
-              Fund source selection is required
+              • Fund source selection is required
             </li>
             <li *ngIf="disbursementForm.get('classification')?.invalid && disbursementForm.get('classification')?.touched">
-              Classification selection is required
+              • Classification selection is required
             </li>
             <li *ngIf="disbursementForm.get('department')?.invalid && disbursementForm.get('department')?.touched">
-              Department selection is required
+              • Department selection is required
             </li>
           </ul>
         </div>
