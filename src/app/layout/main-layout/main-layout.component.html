@@ -1,0 +1,198 @@
+<div class="main-layout" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.mobile-open]="isMobileMenuOpen">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">💰</span>
+        <span class="logo-text" *ngIf="!isSidebarCollapsed">E-Fund Tracker</span>
+      </div>
+      <button 
+        class="sidebar-toggle desktop-only" 
+        (click)="toggleSidebar()"
+        [attr.aria-label]="isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+      >
+        {{ isSidebarCollapsed ? '▶️' : '◀️' }}
+      </button>
+    </div>
+
+    <!-- User Info -->
+    <div class="user-info" *ngIf="currentUser">
+      <div class="user-avatar">
+        <span class="avatar-initials">{{ getUserInitials() }}</span>
+      </div>
+      <div class="user-details" *ngIf="!isSidebarCollapsed">
+        <div class="user-name">{{ getUserDisplayName() }}</div>
+        <div class="user-role" [class]="getRoleBadgeClass()">
+          {{ getRoleDisplayName() }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <li 
+          *ngFor="let item of getFilteredNavigationItems()" 
+          class="nav-item"
+          [class.active]="isRouteActive(item.route)"
+        >
+          <a 
+            class="nav-link"
+            [routerLink]="item.route"
+            (click)="closeMobileMenu()"
+            [class.has-children]="item.children && item.children.length > 0"
+          >
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span class="nav-label" *ngIf="!isSidebarCollapsed">{{ item.label }}</span>
+          </a>
+          
+          <!-- Submenu -->
+          <ul 
+            class="submenu" 
+            *ngIf="item.children && item.children.length > 0 && !isSidebarCollapsed"
+          >
+            <li 
+              *ngFor="let child of item.children" 
+              class="submenu-item"
+              [class.active]="isRouteActive(child.route)"
+            >
+              <a 
+                class="submenu-link"
+                [routerLink]="child.route"
+                (click)="closeMobileMenu()"
+                *ngIf="hasAccess(child.roles)"
+              >
+                {{ child.label }}
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions" *ngIf="!isSidebarCollapsed">
+      <h4 class="quick-actions-title">⚡ Quick Actions</h4>
+      <div class="quick-actions-list">
+        <button 
+          *ngFor="let action of getQuickActions()"
+          class="quick-action-btn"
+          [class]="action.class"
+          (click)="navigateTo(action.route)"
+        >
+          <span class="action-icon">{{ action.icon }}</span>
+          <span class="action-label">{{ action.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer" *ngIf="!isSidebarCollapsed">
+      <div class="system-info">
+        <div class="current-time">
+          <span class="time">{{ formatTime(currentTime) }}</span>
+          <span class="date">{{ formatDate(currentTime) }}</span>
+        </div>
+        <div class="system-status">
+          <span class="status-indicator online"></span>
+          <span class="status-text">System Online</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile Overlay -->
+  <div 
+    class="mobile-overlay" 
+    *ngIf="isMobileMenuOpen"
+    (click)="closeMobileMenu()"
+  ></div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <!-- Mobile Menu Toggle -->
+        <button 
+          class="mobile-menu-toggle mobile-only" 
+          (click)="toggleMobileMenu()"
+          [attr.aria-label]="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
+        >
+          <span class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+        
+        <!-- Breadcrumb or Page Title -->
+        <div class="page-info">
+          <h2 class="page-title">{{ getGreeting() }}!</h2>
+          <p class="page-subtitle">Welcome back to E-Fund Tracker</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Notifications -->
+        <div class="notification-bell">
+          <button class="notification-btn" [class.has-notifications]="hasNotifications()">
+            🔔
+            <span class="notification-count" *ngIf="hasNotifications()">
+              {{ getNotificationCount() }}
+            </span>
+          </button>
+        </div>
+
+        <!-- User Menu -->
+        <div class="user-menu">
+          <div class="user-info-header">
+            <div class="user-avatar-small">
+              <span class="avatar-initials">{{ getUserInitials() }}</span>
+            </div>
+            <div class="user-details-header">
+              <div class="user-name">{{ getUserDisplayName() }}</div>
+              <div class="user-role" [class]="getRoleBadgeClass()">
+                {{ getRoleDisplayName() }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="user-actions">
+            <button class="user-action-btn" routerLink="/profile">
+              👤 Profile
+            </button>
+            <button class="user-action-btn" routerLink="/settings">
+              ⚙️ Settings
+            </button>
+            <button class="user-action-btn logout" (click)="logout()">
+              🚪 Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <p>&copy; 2024 E-Fund Tracker. Government Financial Management System.</p>
+        </div>
+        <div class="footer-right">
+          <span class="version">v1.0.0</span>
+          <span class="separator">•</span>
+          <a href="#" class="footer-link">Help</a>
+          <span class="separator">•</span>
+          <a href="#" class="footer-link">Support</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>

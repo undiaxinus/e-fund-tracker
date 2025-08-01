@@ -1,0 +1,318 @@
+<div class="disbursement-list-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>💰 Disbursements</h1>
+      <p>Manage and track all financial disbursements</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        class="filter-toggle-btn"
+        (click)="showFilters = !showFilters"
+        [class.active]="showFilters"
+      >
+        🔍 Filters
+      </button>
+      <button 
+        *ngIf="canEdit()"
+        class="primary-btn"
+        routerLink="/disbursements/new"
+      >
+        ➕ New Disbursement
+      </button>
+      <button 
+        class="refresh-btn"
+        (click)="refreshData()"
+        [disabled]="isLoading"
+      >
+        <span [class.spinning]="isLoading">🔄</span>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section" [class.show]="showFilters">
+    <form [formGroup]="filterForm" class="filters-form">
+      <div class="filter-row">
+        <!-- Search -->
+        <div class="filter-group">
+          <label>Search</label>
+          <input 
+            type="text" 
+            formControlName="search" 
+            placeholder="Search by disbursement #, payee, description..."
+            class="search-input"
+          />
+        </div>
+        
+        <!-- Classification -->
+        <div class="filter-group">
+          <label>Classification</label>
+          <select formControlName="classification">
+            <option value="">All Classifications</option>
+            <option *ngFor="let classification of classifications" [value]="classification.value">
+              {{ classification.icon }} {{ classification.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Department -->
+        <div class="filter-group">
+          <label>Department</label>
+          <select formControlName="department">
+            <option value="">All Departments</option>
+            <option *ngFor="let dept of departments" [value]="dept">
+              {{ dept }}
+            </option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filter-row">
+        <!-- Status -->
+        <div class="filter-group">
+          <label>Status</label>
+          <select formControlName="status">
+            <option value="">All Statuses</option>
+            <option *ngFor="let status of statuses" [value]="status.value">
+              {{ status.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Date From -->
+        <div class="filter-group">
+          <label>Date From</label>
+          <input type="date" formControlName="dateFrom" />
+        </div>
+        
+        <!-- Date To -->
+        <div class="filter-group">
+          <label>Date To</label>
+          <input type="date" formControlName="dateTo" />
+        </div>
+        
+        <!-- Clear Filters -->
+        <div class="filter-group">
+          <button type="button" class="clear-filters-btn" (click)="clearFilters()">
+            🗑️ Clear
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Summary -->
+  <div class="results-summary">
+    <div class="summary-info">
+      <span class="total-count">{{ totalItems }} disbursements found</span>
+      <span *ngIf="selectedItems.length > 0" class="selected-count">
+        ({{ selectedItems.length }} selected)
+      </span>
+    </div>
+    
+    <!-- Bulk Actions -->
+    <div class="bulk-actions" *ngIf="selectedItems.length > 0 && canEdit()">
+      <button class="bulk-action-btn export" (click)="exportSelected()">
+        📤 Export Selected
+      </button>
+      <button class="bulk-action-btn delete" (click)="deleteSelected()">
+        🗑️ Delete Selected
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">⏳</div>
+    <p>Loading disbursements...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error }}</p>
+    <button class="retry-btn" (click)="refreshData()">Try Again</button>
+  </div>
+
+  <!-- Data Table -->
+  <div *ngIf="!isLoading && !error" class="table-container">
+    <div *ngIf="filteredDisbursements.length === 0" class="no-data">
+      <div class="no-data-icon">📄</div>
+      <h3>No disbursements found</h3>
+      <p>Try adjusting your filters or create a new disbursement.</p>
+      <button *ngIf="canEdit()" class="create-btn" routerLink="/disbursements/new">
+        ➕ Create First Disbursement
+      </button>
+    </div>
+
+    <div *ngIf="filteredDisbursements.length > 0" class="data-table">
+      <!-- Table Header -->
+      <div class="table-header">
+        <div class="col-select">
+          <input 
+            type="checkbox" 
+            [checked]="selectAll" 
+            (change)="toggleSelectAll()"
+            *ngIf="canEdit()"
+          />
+        </div>
+        <div class="col-disbursement" (click)="sort('disbursementNo')">
+          Disbursement # {{ getSortIcon('disbursementNo') }}
+        </div>
+        <div class="col-payee" (click)="sort('payee')">
+          Payee {{ getSortIcon('payee') }}
+        </div>
+        <div class="col-amount" (click)="sort('amount')">
+          Amount {{ getSortIcon('amount') }}
+        </div>
+        <div class="col-classification" (click)="sort('classification')">
+          Type {{ getSortIcon('classification') }}
+        </div>
+        <div class="col-department" (click)="sort('department')">
+          Department {{ getSortIcon('department') }}
+        </div>
+        <div class="col-date" (click)="sort('disbursementDate')">
+          Date {{ getSortIcon('disbursementDate') }}
+        </div>
+        <div class="col-status" (click)="sort('status')">
+          Status {{ getSortIcon('status') }}
+        </div>
+        <div class="col-actions">Actions</div>
+      </div>
+
+      <!-- Table Rows -->
+      <div 
+        class="table-row"
+        *ngFor="let disbursement of getPaginatedItems()"
+        [class.selected]="isSelected(disbursement.id)"
+      >
+        <div class="col-select">
+          <input 
+            type="checkbox" 
+            [checked]="isSelected(disbursement.id)" 
+            (change)="toggleSelectItem(disbursement.id)"
+            *ngIf="canEdit()"
+          />
+        </div>
+        
+        <div class="col-disbursement">
+          <a [routerLink]="['/disbursements', disbursement.id]" class="disbursement-link">
+            <strong>{{ disbursement.disbursementNo }}</strong>
+          </a>
+        </div>
+        
+        <div class="col-payee">
+          <div class="payee-info">
+            <span class="payee-name">{{ disbursement.payee }}</span>
+            <small class="payee-description">{{ disbursement.description | slice:0:50 }}{{ disbursement.description.length > 50 ? '...' : '' }}</small>
+          </div>
+        </div>
+        
+        <div class="col-amount">
+          <span class="amount-value">{{ formatCurrency(disbursement.amount) }}</span>
+        </div>
+        
+        <div class="col-classification">
+          <span 
+            class="classification-badge"
+            [style.background-color]="getClassificationInfo(disbursement.classification).value === 'PS' ? '#4299e1' : 
+                                     getClassificationInfo(disbursement.classification).value === 'MOOE' ? '#48bb78' :
+                                     getClassificationInfo(disbursement.classification).value === 'CO' ? '#ed8936' : '#9f7aea'"
+          >
+            {{ getClassificationInfo(disbursement.classification).icon }}
+            {{ disbursement.classification }}
+          </span>
+        </div>
+        
+        <div class="col-department">
+          {{ disbursement.department }}
+        </div>
+        
+        <div class="col-date">
+          {{ formatDate(disbursement.disbursementDate) }}
+        </div>
+        
+        <div class="col-status">
+          <span [class]="getStatusInfo(disbursement.status).class">
+            {{ disbursement.status }}
+          </span>
+        </div>
+        
+        <div class="col-actions">
+          <div class="action-buttons">
+            <a 
+              [routerLink]="['/disbursements', disbursement.id]"
+              class="action-btn view"
+              title="View Details"
+            >
+              👁️
+            </a>
+            <a 
+              *ngIf="canEdit()"
+              [routerLink]="['/disbursements', disbursement.id, 'edit']"
+              class="action-btn edit"
+              title="Edit"
+            >
+              ✏️
+            </a>
+            <button 
+              *ngIf="canDelete()"
+              class="action-btn delete"
+              title="Delete"
+              (click)="deleteSelected()"
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to 
+        {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} entries
+      </div>
+      
+      <div class="pagination-controls">
+        <button 
+          class="page-btn"
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+        >
+          ⬅️ Previous
+        </button>
+        
+        <button 
+          *ngFor="let page of getPageNumbers()"
+          class="page-btn"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+        
+        <button 
+          class="page-btn"
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+        >
+          Next ➡️
+        </button>
+      </div>
+      
+      <div class="items-per-page">
+        <label>Items per page:</label>
+        <select [(ngModel)]="itemsPerPage" (change)="applyFilters()">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
