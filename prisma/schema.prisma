@@ -1,0 +1,197 @@
+// E-Fund Tracker Database Schema
+// Comprehensive disbursement tracking system for government financial management
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String   @unique
+  firstName   String
+  lastName    String
+  password    String
+  role        UserRole @default(VIEWER)
+  department  String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastLogin   DateTime?
+
+  // Relations
+  createdDisbursements Disbursement[] @relation("CreatedBy")
+  updatedDisbursements Disbursement[] @relation("UpdatedBy")
+  auditLogs           AuditLog[]
+  sessions            UserSession[]
+
+  @@map("users")
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+// Disbursement Management
+model Disbursement {
+  id                String              @id @default(cuid())
+  disbursementNo    String              @unique
+  payee             String
+  amount            Decimal             @db.Decimal(15, 2)
+  disbursementDate  DateTime
+  description       String
+  fundSource        String
+  classification    Classification
+  subClassification String?
+  department        String
+  checkNo           String?
+  voucherNo         String?
+  remarks           String?
+  status            DisbursementStatus @default(ACTIVE)
+  isArchived        Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  createdById       String
+  updatedById       String?
+
+  // Relations
+  createdBy User  @relation("CreatedBy", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedBy", fields: [updatedById], references: [id])
+  auditLogs AuditLog[]
+  attachments DisbursementAttachment[]
+
+  @@map("disbursements")
+}
+
+model DisbursementAttachment {
+  id             String @id @default(cuid())
+  disbursementId String
+  fileName       String
+  filePath       String
+  fileSize       Int
+  mimeType       String
+  uploadedAt     DateTime @default(now())
+
+  disbursement Disbursement @relation(fields: [disbursementId], references: [id], onDelete: Cascade)
+
+  @@map("disbursement_attachments")
+}
+
+// Classification Management
+model ClassificationConfig {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("classification_configs")
+}
+
+// Audit Trail
+model AuditLog {
+  id             String     @id @default(cuid())
+  userId         String
+  action         AuditAction
+  entityType     String
+  entityId       String?
+  oldValues      Json?
+  newValues      Json?
+  ipAddress      String?
+  userAgent      String?
+  timestamp      DateTime   @default(now())
+  disbursementId String?
+
+  user         User          @relation(fields: [userId], references: [id])
+  disbursement Disbursement? @relation(fields: [disbursementId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// Reports and Archives
+model Report {
+  id          String     @id @default(cuid())
+  name        String
+  type        ReportType
+  parameters  Json
+  filePath    String?
+  status      ReportStatus @default(PENDING)
+  generatedAt DateTime?
+  createdAt   DateTime   @default(now())
+  createdBy   String
+
+  @@map("reports")
+}
+
+model SystemConfig {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  description String?
+  updatedAt DateTime @updatedAt
+
+  @@map("system_configs")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  ENCODER
+  VIEWER
+}
+
+enum Classification {
+  PS    // Personnel Services
+  MOOE  // Maintenance and Other Operating Expenses
+  CO    // Capital Outlay
+  TR    // Trust Receipts
+}
+
+enum DisbursementStatus {
+  ACTIVE
+  CANCELLED
+  ARCHIVED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  VIEW
+}
+
+enum ReportType {
+  SUMMARY
+  DETAILED
+  CLASSIFICATION
+  DEPARTMENT
+  CUSTOM
+}
+
+enum ReportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
