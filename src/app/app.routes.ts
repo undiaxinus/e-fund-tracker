@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/auth/auth.guard';
+import { AuthGuard } from './core/guards/auth.guard';
+import { RoleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -23,27 +24,22 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'dashboard',
-    loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard]
+    path: 'admin',
+    loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
   },
   {
-    path: 'disbursements',
+    path: 'encoder',
+    loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     canActivate: [AuthGuard],
-    children: [
-      {
-        path: '',
-        loadComponent: () => import('./features/disbursements/disbursement-list/disbursement-list.component').then(m => m.DisbursementListComponent)
-      },
-      {
-        path: 'new',
-        loadComponent: () => import('./features/disbursements/disbursement-form/disbursement-form.component').then(m => m.DisbursementFormComponent)
-      },
-      {
-        path: 'edit/:id',
-        loadComponent: () => import('./features/disbursements/disbursement-form/disbursement-form.component').then(m => m.DisbursementFormComponent)
-      }
-    ]
+    loadChildren: () => import('./features/encoder/encoder.routes').then(m => m.encoderRoutes)
+  },
+  {
+    path: 'viewer',
+    loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./features/viewer/viewer.routes').then(m => m.viewerRoutes)
   },
   // TODO: Add these routes when components are created
   // {

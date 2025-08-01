@@ -2,7 +2,7 @@ import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../core/auth/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -25,18 +25,30 @@ export class LoginComponent implements OnInit {
 
   // Form setup
   readonly loginForm: FormGroup = this.formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    email: ['admin@efund.gov', [Validators.required, Validators.email]],
+    password: ['password123', [Validators.required, Validators.minLength(3)]],
     rememberMe: [false]
   });
 
   // Computed properties
-  readonly isFormValid = computed(() => this.loginForm.valid);
-  readonly canSubmit = computed(() => this.isFormValid() && !this.isLoading());
+  readonly isFormValid = computed(() => {
+    const valid = this.loginForm.valid;
+    const emailControl = this.loginForm.get('email');
+    const passwordControl = this.loginForm.get('password');
+    console.log('Form valid:', valid);
+    console.log('Email valid:', emailControl?.valid, 'Email errors:', emailControl?.errors);
+    console.log('Password valid:', passwordControl?.valid, 'Password errors:', passwordControl?.errors);
+    return valid;
+  });
+  readonly canSubmit = computed(() => {
+    const canSubmit = this.isFormValid() && !this.isLoading();
+    console.log('Can submit:', canSubmit, 'Form valid:', this.isFormValid(), 'Loading:', this.isLoading());
+    return canSubmit;
+  });
 
   ngOnInit(): void {
-    // Get return url from route parameters or default to '/dashboard'
-    this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || '/dashboard');
+    // Get return url from route parameters or default to '/admin'
+    this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || '/admin');
 
     // Check if user is already authenticated
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {

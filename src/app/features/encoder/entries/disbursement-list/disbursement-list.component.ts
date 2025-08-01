@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/auth/auth.service';
-import { SupabaseService } from '../../../core/services/supabase.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { SupabaseService } from '../../../../core/services/supabase.service';
 
 interface Disbursement {
   id: string;
