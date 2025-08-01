@@ -67,7 +67,7 @@ export class AuthService {
           
           this.currentUserSubject.next(mockUser);
           this.isAuthenticatedSubject.next(true);
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/dashboard']);
           return { success: true };
         } else {
           return { success: false, error: 'Please enter email and password' };
@@ -89,7 +89,7 @@ export class AuthService {
           lastLogin: new Date().toISOString()
         });
 
-        this.router.navigate(['/admin']);
+        this.router.navigate(['/dashboard']);
         return { success: true };
       }
 

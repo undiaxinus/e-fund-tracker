@@ -1,212 +1,110 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { SidebarService } from '../../shared/services/sidebar.service';
+import { LayoutService, LayoutState } from '../../shared/services/layout.service';
+import { SidebarComponent } from '../../shared/components/sidebar/sidebar.component';
+import { HeaderComponent } from '../../shared/components/header/header.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent],
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.css']
 })
-export class MainLayoutComponent implements OnInit {
+export class MainLayoutComponent implements OnInit, OnDestroy {
   currentUser: any;
   isSidebarCollapsed = false;
   isMobileMenuOpen = false;
-  currentTime = new Date();
-
-  navigationItems = [
-    {
-      label: 'Dashboard',
-      icon: '📊',
-      route: '/dashboard',
-      roles: ['ADMIN', 'ENCODER', 'VIEWER']
-    },
-    {
-      label: 'Disbursements',
-      icon: '💰',
-      route: '/disbursements',
-      roles: ['ADMIN', 'ENCODER', 'VIEWER'],
-      children: [
-        { label: 'View All', route: '/disbursements', roles: ['ADMIN', 'ENCODER', 'VIEWER'] },
-        { label: 'New Entry', route: '/disbursements/new', roles: ['ADMIN', 'ENCODER'] }
-      ]
-    },
-    {
-      label: 'Reports',
-      icon: '📈',
-      route: '/reports',
-      roles: ['ADMIN', 'ENCODER', 'VIEWER']
-    },
-    {
-      label: 'Archive',
-      icon: '📦',
-      route: '/archive',
-      roles: ['ADMIN', 'ENCODER', 'VIEWER']
-    },
-    {
-      label: 'Administration',
-      icon: '⚙️',
-      route: '/admin',
-      roles: ['ADMIN'],
-      children: [
-        { label: 'User Management', route: '/admin/users', roles: ['ADMIN'] },
-        { label: 'System Settings', route: '/admin/settings', roles: ['ADMIN'] },
-        { label: 'Audit Logs', route: '/admin/audit', roles: ['ADMIN'] }
-      ]
-    }
-  ];
+  layoutState: LayoutState;
+  
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private authService: AuthService,
+    private sidebarService: SidebarService,
+    private layoutService: LayoutService,
     private router: Router
   ) {
-    // Update time every minute
-    setInterval(() => {
-      this.currentTime = new Date();
-    }, 60000);
+    this.layoutState = this.layoutService.getCurrentLayoutState();
   }
 
   ngOnInit(): void {
     this.loadCurrentUser();
+    this.loadSidebarState();
+    this.loadLayoutState();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   private loadCurrentUser(): void {
-    this.authService.currentUser$.subscribe(user => {
+    const sub = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      if (user) {
+        // Adjust layout for user role
+        this.layoutService.adjustLayoutForRole();
+        
+        // Redirect to role-based dashboard if on root
+        const currentUrl = this.router.url;
+        if (currentUrl === '/admin' || currentUrl === '/encoder' || currentUrl === '/viewer') {
+          const defaultRoute = this.sidebarService.getDefaultRoute();
+          this.router.navigate([defaultRoute]);
+        }
+      }
     });
+    this.subscriptions.push(sub);
   }
 
-  toggleSidebar(): void {
-    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  private loadSidebarState(): void {
+    const collapsedSub = this.sidebarService.isCollapsed$.subscribe(collapsed => {
+      this.isSidebarCollapsed = collapsed;
+    });
+    this.subscriptions.push(collapsedSub);
+
+    const mobileSub = this.sidebarService.isMobileMenuOpen$.subscribe(open => {
+      this.isMobileMenuOpen = open;
+    });
+    this.subscriptions.push(mobileSub);
   }
 
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  private loadLayoutState(): void {
+    const layoutSub = this.layoutService.layoutState$.subscribe(state => {
+      this.layoutState = state;
+    });
+    this.subscriptions.push(layoutSub);
   }
 
   closeMobileMenu(): void {
-    this.isMobileMenuOpen = false;
+    this.sidebarService.closeMobileMenu();
   }
 
-  async logout(): Promise<void> {
-    if (confirm('Are you sure you want to logout?')) {
-      await this.authService.signOut();
-    }
+  // Getter methods for template
+  get showSidebar(): boolean {
+    return this.layoutState.showSidebar;
   }
 
-  getUserDisplayName(): string {
-    if (!this.currentUser) return 'User';
-    return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+  get showHeader(): boolean {
+    return this.layoutState.showHeader;
   }
 
-  getUserInitials(): string {
-    if (!this.currentUser) return 'U';
-    return `${this.currentUser.firstName?.[0] || ''}${this.currentUser.lastName?.[0] || ''}`;
+  get showFooter(): boolean {
+    return this.layoutState.showFooter;
   }
 
-  getRoleDisplayName(): string {
-    if (!this.currentUser) return '';
-    const roleMap: { [key: string]: string } = {
-      'ADMIN': 'Administrator',
-      'ENCODER': 'Data Encoder',
-      'VIEWER': 'Viewer'
-    };
-    return roleMap[this.currentUser.role] || this.currentUser.role;
+  get isLoading(): boolean {
+    return this.layoutState.isLoading;
   }
 
-  getRoleBadgeClass(): string {
-    if (!this.currentUser) return 'role-default';
-    const roleClasses: { [key: string]: string } = {
-      'ADMIN': 'role-admin',
-      'ENCODER': 'role-encoder',
-      'VIEWER': 'role-viewer'
-    };
-    return roleClasses[this.currentUser.role] || 'role-default';
+  get currentPage(): string {
+    return this.layoutState.currentPage;
   }
 
-  hasAccess(roles: string[]): boolean {
-    if (!this.currentUser) return false;
-    return roles.includes(this.currentUser.role);
-  }
-
-  isRouteActive(route: string): boolean {
-    return this.router.url.startsWith(route);
-  }
-
-  navigateTo(route: string): void {
-    this.router.navigate([route]);
-    this.closeMobileMenu();
-  }
-
-  getFilteredNavigationItems() {
-    return this.navigationItems.filter(item => this.hasAccess(item.roles));
-  }
-
-  formatTime(date: Date): string {
-    return date.toLocaleTimeString('en-PH', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  }
-
-  formatDate(date: Date): string {
-    return date.toLocaleDateString('en-PH', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
-
-  getGreeting(): string {
-    const hour = this.currentTime.getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  }
-
-  // Quick actions based on user role
-  getQuickActions() {
-    const actions = [];
-    
-    if (this.authService.canEdit()) {
-      actions.push({
-        label: 'New Disbursement',
-        icon: '➕',
-        route: '/disbursements/new',
-        class: 'quick-action-primary'
-      });
-    }
-    
-    actions.push({
-      label: 'Generate Report',
-      icon: '📊',
-      route: '/reports',
-      class: 'quick-action-secondary'
-    });
-    
-    if (this.authService.isAdmin()) {
-      actions.push({
-        label: 'User Management',
-        icon: '👥',
-        route: '/admin/users',
-        class: 'quick-action-admin'
-      });
-    }
-    
-    return actions;
-  }
-
-  // Notification system (placeholder for future implementation)
-  getNotificationCount(): number {
-    // TODO: Implement notification system
-    return 0;
-  }
-
-  hasNotifications(): boolean {
-    return this.getNotificationCount() > 0;
+  get breadcrumbs(): string[] {
+    return this.layoutState.breadcrumbs;
   }
 }

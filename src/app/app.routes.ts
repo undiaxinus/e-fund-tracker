@@ -17,53 +17,174 @@ export const routes: Routes = [
     redirectTo: '/auth/login',
     pathMatch: 'full'
   },
+  // Unified layout for all authenticated users
   {
-    path: 'admin',
+    path: '',
     loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     canActivate: [AuthGuard],
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
+    children: [
+      // Dashboard routes
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        canActivate: [RoleGuard],
+        data: { permissions: ['canView'] }
+      },
+      // Disbursements routes
+      {
+        path: 'disbursements',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canView'] }
+          },
+          {
+            path: 'new',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canEdit'] }
+          },
+          {
+            path: 'pending',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['isAdmin'] }
+          },
+          {
+            path: 'approved',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canView'] }
+          }
+        ]
+      },
+      // Reports routes
+      {
+        path: 'reports',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canView'] }
+          },
+          {
+            path: 'financial',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canView'] }
+          },
+          {
+            path: 'analytics',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canView'] }
+          },
+          {
+            path: 'custom',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canEdit'] }
+          }
+        ]
+      },
+      // Archive route
+      {
+        path: 'archive',
+        loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        canActivate: [RoleGuard],
+        data: { permissions: ['canView'] }
+      },
+      // Data Entry routes
+      {
+        path: 'entries',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canEdit'] }
+          },
+          {
+            path: 'new',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canEdit'] }
+          },
+          {
+            path: 'my',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canEdit'] }
+          },
+          {
+            path: 'drafts',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+            canActivate: [RoleGuard],
+            data: { permissions: ['canEdit'] }
+          }
+        ]
+      },
+      // Admin routes
+      {
+        path: 'admin',
+        canActivate: [RoleGuard],
+        data: { permissions: ['isAdmin'] },
+        children: [
+          {
+            path: '',
+            redirectTo: 'dashboard',
+            pathMatch: 'full'
+          },
+          {
+            path: 'dashboard',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          },
+          {
+            path: 'users',
+            loadChildren: () => import('./features/admin/manage-users/manage-users.routes').then(m => m.manageUsersRoutes)
+          },
+          {
+            path: 'roles',
+            loadChildren: () => import('./features/admin/manage-roles/manage-roles.routes').then(m => m.manageRolesRoutes)
+          },
+          {
+            path: 'classifications',
+            loadChildren: () => import('./features/admin/manage-classifications/manage-classifications.routes').then(m => m.manageClassificationsRoutes)
+          },
+          {
+            path: 'settings',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          },
+          {
+            path: 'audit',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          }
+        ]
+      },
+      // Legacy role-based routes for backward compatibility
+      {
+        path: 'admin',
+        loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
+      },
+      {
+        path: 'encoder',
+        loadChildren: () => import('./features/encoder/encoder.routes').then(m => m.encoderRoutes)
+      },
+      {
+        path: 'viewer',
+        loadChildren: () => import('./features/viewer/viewer.routes').then(m => m.viewerRoutes)
+      },
+      // Default redirect for authenticated users
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      }
+    ]
   },
-  {
-    path: 'encoder',
-    loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
-    canActivate: [AuthGuard],
-    loadChildren: () => import('./features/encoder/encoder.routes').then(m => m.encoderRoutes)
-  },
-  {
-    path: 'viewer',
-    loadComponent: () => import('./layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
-    canActivate: [AuthGuard],
-    loadChildren: () => import('./features/viewer/viewer.routes').then(m => m.viewerRoutes)
-  },
-  // TODO: Add these routes when components are created
-  // {
-  //   path: 'reports',
-  //   loadComponent: () => import('./features/reports/reports.component').then(m => m.ReportsComponent),
-  //   canActivate: [AuthGuard]
-  // },
-  // {
-  //   path: 'archive',
-  //   loadComponent: () => import('./features/archive/archive.component').then(m => m.ArchiveComponent),
-  //   canActivate: [AuthGuard]
-  // },
-  // {
-  //   path: 'admin',
-  //   canActivate: [AuthGuard],
-  //   children: [
-  //     {
-  //       path: 'users',
-  //       loadComponent: () => import('./features/admin/user-management/user-management.component').then(m => m.UserManagementComponent)
-  //     },
-  //     {
-  //       path: 'settings',
-  //       loadComponent: () => import('./features/admin/settings/settings.component').then(m => m.SettingsComponent)
-  //     },
-  //     {
-  //       path: 'audit',
-  //       loadComponent: () => import('./features/admin/audit-logs/audit-logs.component').then(m => m.AuditLogsComponent)
-  //     }
-  //   ]
-  // },
   {
     path: '**',
     redirectTo: '/auth/login'

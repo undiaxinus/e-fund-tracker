@@ -1,0 +1,74 @@
+<header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <!-- Mobile Menu Toggle -->
+      <button 
+        class="lg:hidden flex items-center justify-center w-10 h-10 rounded-md hover:bg-gray-100 transition-colors duration-200" 
+        (click)="toggleMobileMenu()"
+        [attr.aria-label]="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
+      >
+        <span class="flex flex-col gap-1">
+          <span class="w-5 h-0.5 bg-gray-600 transition-all duration-200" 
+                [class.rotate-45]="isMobileMenuOpen"
+                [class.translate-y-1.5]="isMobileMenuOpen"></span>
+          <span class="w-5 h-0.5 bg-gray-600 transition-all duration-200" 
+                [class.opacity-0]="isMobileMenuOpen"></span>
+          <span class="w-5 h-0.5 bg-gray-600 transition-all duration-200" 
+                [class.-rotate-45]="isMobileMenuOpen"
+                [class.-translate-y-1.5]="isMobileMenuOpen"></span>
+        </span>
+      </button>
+      
+      <!-- Breadcrumb or Page Title -->
+      <div>
+        <h2 class="text-xl font-semibold text-gray-900">{{ getGreeting() }}!</h2>
+        <p class="text-sm text-gray-600">Welcome back to E-Fund Tracker</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <!-- Notifications -->
+      <div class="relative">
+        <button class="relative flex items-center justify-center w-10 h-10 rounded-md hover:bg-gray-100 transition-colors duration-200"
+                [class.has-notifications]="hasNotifications()">
+          <span class="text-lg">🔔</span>
+          <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium" 
+                *ngIf="hasNotifications()">
+            {{ getNotificationCount() }}
+          </span>
+        </button>
+      </div>
+
+      <!-- User Menu -->
+      <div class="relative">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+            <span>{{ getUserInitials() }}</span>
+          </div>
+          <div class="hidden md:block">
+            <div class="text-sm font-medium text-gray-900">{{ getUserDisplayName() }}</div>
+            <div class="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded-full inline-block" 
+                 [class]="getRoleBadgeClass()">
+              {{ getRoleDisplayName() }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+          <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200" 
+                  routerLink="/profile">
+            👤 Profile
+          </button>
+          <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200" 
+                  routerLink="/settings">
+            ⚙️ Settings
+          </button>
+          <button class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200" 
+                  (click)="logout()">
+            🚪 Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header> 
