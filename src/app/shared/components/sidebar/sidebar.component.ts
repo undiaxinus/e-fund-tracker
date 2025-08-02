@@ -172,4 +172,34 @@ export class SidebarComponent implements OnInit, OnDestroy {
   hasNotifications(): boolean {
     return this.getNotificationCount() > 0;
   }
+
+  // Helper methods for filtering navigation items
+  getDashboardItems(): NavigationItem[] {
+    return this.navigationItems.filter(item => item.label === 'Dashboard');
+  }
+
+  getManagementItems(): NavigationItem[] {
+    return this.navigationItems.filter(item => 
+      ['User Management', 'Expense Classifications', 'Disbursement Records'].includes(item.label)
+    );
+  }
+
+  getReportsItems(): NavigationItem[] {
+    return this.navigationItems.filter(item => 
+      ['Reports'].includes(item.label)
+    );
+  }
+
+  getSystemItems(): NavigationItem[] {
+    return this.navigationItems.filter(item => 
+      ['System Logs', 'Session Management', 'Archived Data', 'Settings'].includes(item.label)
+    );
+  }
+
+  getRegularUserItems(): NavigationItem[] {
+    return this.navigationItems.filter(item => 
+      !['Dashboard', 'User Management', 'Expense Classifications', 'Disbursement Records', 
+        'Reports', 'System Logs', 'Session Management', 'Archived Data', 'Settings'].includes(item.label)
+    );
+  }
 }

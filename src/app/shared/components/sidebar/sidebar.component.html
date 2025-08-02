@@ -14,14 +14,14 @@
   </button>
 
   <!-- Logo Section -->
-  <div class="py-2.5 px-6 border-b border-white/10 bg-white/5">
-    <div class="flex items-center gap-3">
+  <div class="py-2 px-4 border-b border-white/10 bg-white/5">
+    <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
-        <div class="p-1.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-sm">
-          <img src="assets/images/finance-logo.png" alt="Logo" class="h-6 w-6">
+        <div class="p-1 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-sm">
+          <img src="assets/images/finance-logo.png" alt="Logo" class="h-5 w-5">
         </div>
         <div>
-          <h1 class="text-base font-bold text-white tracking-wide">E-Fund Tracker</h1>
+          <h1 class="text-sm font-bold text-white tracking-wide">E-Fund Tracker</h1>
           <p class="text-xs text-gray-500">Fund Management System</p>
         </div>
       </div>
@@ -29,58 +29,131 @@
   </div>
 
   <!-- Navigation Menu -->
-  <nav class="flex-1 py-3 px-3 overflow-y-auto">
-    <!-- Menu Section -->
-    <div class="mb-2 px-2">
-      <h2 class="text-xs font-medium text-gray-400 uppercase tracking-wider">Fund Management</h2>
+  <nav class="flex-1 py-2 px-2">
+    <!-- Dashboard Section -->
+    <div class="mb-1 px-2">
+      <h2 class="text-xs font-medium text-gray-400 uppercase tracking-wider">Main</h2>
     </div>
     
-    <ul class="space-y-0.5">
-      <li *ngFor="let item of navigationItems">
+    <ul class="space-y-0.5 mb-4">
+      <li *ngFor="let item of getDashboardItems()">
         <a [routerLink]="item.route" 
-           routerLinkActive="bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-8 before:w-1 before:bg-blue-500 before:rounded-r shadow-sm" 
+           routerLinkActive="bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-6 before:w-1 before:bg-blue-500 before:rounded-r shadow-sm" 
            [routerLinkActiveOptions]="{exact: item.route.endsWith('dashboard')}" 
-           class="flex items-center px-3 py-2 text-gray-400 hover:text-white rounded-lg relative overflow-hidden hover:bg-white/10 transition-all duration-200 group" 
+           class="flex items-center px-2 py-1.5 text-gray-400 hover:text-white rounded-lg relative overflow-hidden hover:bg-white/10 transition-all duration-200 group" 
            (click)="closeMobileMenu()">
           <div class="flex items-center w-full relative z-10">
-            <div class="p-1.5 rounded-lg bg-gradient-to-br from-white/5 to-white/10 group-hover:from-white/10 group-hover:to-white/20 transition-colors duration-200">
-              <svg class="h-[18px] w-[18px] transform group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-1 rounded-lg bg-gradient-to-br from-white/5 to-white/10 group-hover:from-white/10 group-hover:to-white/20 transition-colors duration-200">
+              <svg class="h-4 w-4 transform group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" [attr.d]="item.icon"/>
               </svg>
             </div>
-            <span class="ml-3 font-medium tracking-wide text-sm group-hover:translate-x-1 transition-transform duration-200">{{ item.label }}</span>
+            <span class="ml-2 font-medium tracking-wide text-sm group-hover:translate-x-1 transition-transform duration-200">{{ item.label }}</span>
           </div>
         </a>
-        
-        <!-- Submenu for items with children -->
-        <ul *ngIf="item.children && item.children.length > 0" class="ml-6 mt-1 space-y-0.5">
-          <li *ngFor="let child of item.children">
-            <a [routerLink]="child.route" 
-               routerLinkActive="bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-6 before:w-1 before:bg-blue-500 before:rounded-r shadow-sm" 
-               class="flex items-center px-3 py-2 text-gray-400 hover:text-white rounded-lg relative overflow-hidden hover:bg-white/10 transition-all duration-200 group" 
-               (click)="closeMobileMenu()">
-              <div class="flex items-center w-full relative z-10">
-                <div class="p-1 rounded-lg bg-gradient-to-br from-white/5 to-white/10 group-hover:from-white/10 group-hover:to-white/20 transition-colors duration-200">
-                  <svg class="h-[14px] w-[14px] transform group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" [attr.d]="child.icon"/>
-                  </svg>
-                </div>
-                <span class="ml-2 font-medium tracking-wide text-xs group-hover:translate-x-1 transition-transform duration-200">{{ child.label }}</span>
-              </div>
-            </a>
-          </li>
-        </ul>
+      </li>
+    </ul>
+
+    <!-- Admin Management Section -->
+    <div *ngIf="currentUser?.role === 'ADMIN'" class="mb-1 px-2">
+      <h2 class="text-xs font-medium text-gray-400 uppercase tracking-wider">Management</h2>
+    </div>
+    
+    <ul *ngIf="currentUser?.role === 'ADMIN'" class="space-y-0.5 mb-4">
+      <li *ngFor="let item of getManagementItems()">
+        <a [routerLink]="item.route" 
+           routerLinkActive="bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-6 before:w-1 before:bg-blue-500 before:rounded-r shadow-sm" 
+           class="flex items-center px-2 py-1.5 text-gray-400 hover:text-white rounded-lg relative overflow-hidden hover:bg-white/10 transition-all duration-200 group" 
+           (click)="closeMobileMenu()">
+          <div class="flex items-center w-full relative z-10">
+            <div class="p-1 rounded-lg bg-gradient-to-br from-white/5 to-white/10 group-hover:from-white/10 group-hover:to-white/20 transition-colors duration-200">
+              <svg class="h-4 w-4 transform group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" [attr.d]="item.icon"/>
+              </svg>
+            </div>
+            <span class="ml-2 font-medium tracking-wide text-sm group-hover:translate-x-1 transition-transform duration-200">{{ item.label }}</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <!-- Reports Section -->
+    <div *ngIf="currentUser?.role === 'ADMIN'" class="mb-1 px-2">
+      <h2 class="text-xs font-medium text-gray-400 uppercase tracking-wider">Reports</h2>
+    </div>
+    
+    <ul *ngIf="currentUser?.role === 'ADMIN'" class="space-y-0.5 mb-4">
+      <li *ngFor="let item of getReportsItems()">
+        <a [routerLink]="item.route" 
+           routerLinkActive="bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-6 before:w-1 before:bg-blue-500 before:rounded-r shadow-sm" 
+           class="flex items-center px-2 py-1.5 text-gray-400 hover:text-white rounded-lg relative overflow-hidden hover:bg-white/10 transition-all duration-200 group" 
+           (click)="closeMobileMenu()">
+          <div class="flex items-center w-full relative z-10">
+            <div class="p-1 rounded-lg bg-gradient-to-br from-white/5 to-white/10 group-hover:from-white/10 group-hover:to-white/20 transition-colors duration-200">
+              <svg class="h-4 w-4 transform group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" [attr.d]="item.icon"/>
+              </svg>
+            </div>
+            <span class="ml-2 font-medium tracking-wide text-sm group-hover:translate-x-1 transition-transform duration-200">{{ item.label }}</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <!-- System Management Section -->
+    <div *ngIf="currentUser?.role === 'ADMIN'" class="mb-1 px-2">
+      <h2 class="text-xs font-medium text-gray-400 uppercase tracking-wider">System</h2>
+    </div>
+    
+    <ul *ngIf="currentUser?.role === 'ADMIN'" class="space-y-0.5 mb-4">
+      <li *ngFor="let item of getSystemItems()">
+        <a [routerLink]="item.route" 
+           routerLinkActive="bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-6 before:w-1 before:bg-blue-500 before:rounded-r shadow-sm" 
+           class="flex items-center px-2 py-1.5 text-gray-400 hover:text-white rounded-lg relative overflow-hidden hover:bg-white/10 transition-all duration-200 group" 
+           (click)="closeMobileMenu()">
+          <div class="flex items-center w-full relative z-10">
+            <div class="p-1 rounded-lg bg-gradient-to-br from-white/5 to-white/10 group-hover:from-white/10 group-hover:to-white/20 transition-colors duration-200">
+              <svg class="h-4 w-4 transform group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" [attr.d]="item.icon"/>
+              </svg>
+            </div>
+            <span class="ml-2 font-medium tracking-wide text-sm group-hover:translate-x-1 transition-transform duration-200">{{ item.label }}</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <!-- Regular User Section -->
+    <div *ngIf="currentUser?.role !== 'ADMIN'" class="mb-1 px-2">
+      <h2 class="text-xs font-medium text-gray-400 uppercase tracking-wider">Fund Management</h2>
+    </div>
+    
+    <ul *ngIf="currentUser?.role !== 'ADMIN'" class="space-y-0.5">
+      <li *ngFor="let item of getRegularUserItems()">
+        <a [routerLink]="item.route" 
+           routerLinkActive="bg-white/10 text-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-6 before:w-1 before:bg-blue-500 before:rounded-r shadow-sm" 
+           class="flex items-center px-2 py-1.5 text-gray-400 hover:text-white rounded-lg relative overflow-hidden hover:bg-white/10 transition-all duration-200 group" 
+           (click)="closeMobileMenu()">
+          <div class="flex items-center w-full relative z-10">
+            <div class="p-1 rounded-lg bg-gradient-to-br from-white/5 to-white/10 group-hover:from-white/10 group-hover:to-white/20 transition-colors duration-200">
+              <svg class="h-4 w-4 transform group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" [attr.d]="item.icon"/>
+              </svg>
+            </div>
+            <span class="ml-2 font-medium tracking-wide text-sm group-hover:translate-x-1 transition-transform duration-200">{{ item.label }}</span>
+          </div>
+        </a>
       </li>
     </ul>
   </nav>
 
   <!-- Footer Section -->
-  <div class="px-3 py-3 border-t border-white/10 bg-white/5">
-    <div class="px-2 mb-2">
+  <div class="px-2 py-2 border-t border-white/10 bg-white/5">
+    <div class="px-2 mb-1">
       <h2 class="text-xs font-medium text-gray-400 uppercase tracking-wider">System</h2>
     </div>
     <!-- System Status -->
-    <div class="px-3 py-2">
+    <div class="px-2 py-1">
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
         <span class="text-xs text-gray-400">System Online</span>

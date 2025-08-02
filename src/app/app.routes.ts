@@ -150,6 +150,69 @@ export const routes: Routes = [
             loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
           },
           {
+            path: 'user-management',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          },
+          {
+            path: 'expense-classifications',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          },
+          {
+            path: 'disbursement-records',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          },
+          {
+            path: 'reports',
+            children: [
+              {
+                path: '',
+                loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+              },
+              {
+                path: 'pdf',
+                loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+              },
+              {
+                path: 'excel',
+                loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+              }
+            ]
+          },
+          {
+            path: 'system-logs',
+            children: [
+              {
+                path: '',
+                loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+              },
+              {
+                path: 'activity',
+                loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+              },
+              {
+                path: 'errors',
+                loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+              },
+              {
+                path: 'security',
+                loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+              }
+            ]
+          },
+          {
+            path: 'session-management',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          },
+          {
+            path: 'archived-data',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          },
+          {
+            path: 'settings',
+            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          },
+          // Legacy admin routes (keeping for backward compatibility)
+          {
             path: 'users',
             loadChildren: () => import('./features/admin/manage-users/manage-users.routes').then(m => m.manageUsersRoutes)
           },
@@ -160,10 +223,6 @@ export const routes: Routes = [
           {
             path: 'classifications',
             loadChildren: () => import('./features/admin/manage-classifications/manage-classifications.routes').then(m => m.manageClassificationsRoutes)
-          },
-          {
-            path: 'settings',
-            loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
           },
           {
             path: 'audit',
