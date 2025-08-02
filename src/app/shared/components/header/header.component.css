@@ -32,6 +32,72 @@
   transition: all 0.3s ease;
 }
 
+/* Mobile toggle button enhancements */
+.mobile-toggle {
+  position: relative;
+  overflow: hidden;
+}
+
+.mobile-toggle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.mobile-toggle:active::before {
+  width: 100%;
+  height: 100%;
+}
+
+/* Icon transition effects */
+.icon-enter {
+  animation: iconFadeIn 0.2s ease-in-out;
+}
+
+.icon-exit {
+  animation: iconFadeOut 0.2s ease-in-out;
+}
+
+@keyframes iconFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) rotate(-90deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes iconFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8) rotate(90deg);
+  }
+}
+
+/* Improved focus states */
+.mobile-toggle:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Active state improvements */
+.mobile-toggle.active {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
 /* Notification styling */
 .has-notifications {
   position: relative;
@@ -139,4 +205,4 @@ a:focus {
 
 .notification-badge {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-} 
+}
