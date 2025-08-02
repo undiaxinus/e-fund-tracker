@@ -21,6 +21,7 @@ import { ReactiveFormsModule } from '@angular/forms';
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Permission</th>
               <th>Status</th>
               <th>Last Login</th>
               <th>Actions</th>
@@ -32,6 +33,14 @@ import { ReactiveFormsModule } from '@angular/forms';
               <td>{{ user.email }}</td>
               <td>
                 <span class="role-badge" [class]="'role-' + user.role">{{ user.role | titlecase }}</span>
+              </td>
+              <td>
+                <span *ngIf="user.role === 'user'" class="permission-badge" [class]="'permission-' + user.permission">
+                  {{ user.permission | titlecase }}
+                </span>
+                <span *ngIf="user.role === 'admin'" class="permission-badge permission-all">
+                  All Permissions
+                </span>
               </td>
               <td>
                 <span class="status-badge" [class]="user.isActive ? 'status-active' : 'status-inactive'">
@@ -91,7 +100,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     }
     
     .role-badge,
-    .status-badge {
+    .status-badge,
+    .permission-badge {
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
       font-size: 0.875rem;
@@ -103,14 +113,24 @@ import { ReactiveFormsModule } from '@angular/forms';
       color: #92400e;
     }
     
-    .role-encoder {
+    .role-user {
       background: #dbeafe;
       color: #1e40af;
     }
     
-    .role-viewer {
-      background: #d1fae5;
-      color: #065f46;
+    .permission-encoder {
+      background: #e0f2fe;
+      color: #0277bd;
+    }
+    
+    .permission-viewer {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+    
+    .permission-all {
+      background: #fff3e0;
+      color: #f57c00;
     }
     
     .status-active {
@@ -173,6 +193,7 @@ export class ManageUsersComponent implements OnInit {
       lastName: 'Doe',
       email: 'john.doe@example.com',
       role: 'admin',
+      permission: null,
       isActive: true,
       lastLoginAt: new Date('2024-01-15T10:30:00')
     },
@@ -181,7 +202,8 @@ export class ManageUsersComponent implements OnInit {
       firstName: 'Jane',
       lastName: 'Smith',
       email: 'jane.smith@example.com',
-      role: 'encoder',
+      role: 'user',
+      permission: 'encoder',
       isActive: true,
       lastLoginAt: new Date('2024-01-14T14:20:00')
     },
@@ -190,9 +212,30 @@ export class ManageUsersComponent implements OnInit {
       firstName: 'Bob',
       lastName: 'Johnson',
       email: 'bob.johnson@example.com',
-      role: 'viewer',
+      role: 'user',
+      permission: 'viewer',
       isActive: false,
       lastLoginAt: null
+    },
+    {
+      id: '4',
+      firstName: 'Alice',
+      lastName: 'Wilson',
+      email: 'alice.wilson@example.com',
+      role: 'user',
+      permission: 'encoder',
+      isActive: true,
+      lastLoginAt: new Date('2024-01-13T09:15:00')
+    },
+    {
+      id: '5',
+      firstName: 'Mike',
+      lastName: 'Brown',
+      email: 'mike.brown@example.com',
+      role: 'user',
+      permission: 'viewer',
+      isActive: true,
+      lastLoginAt: new Date('2024-01-12T16:45:00')
     }
   ];
 

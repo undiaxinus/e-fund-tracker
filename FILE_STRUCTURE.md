@@ -40,40 +40,24 @@ e-fund-tracker/
 ├── sql/                          # Database SQL files
 │   ├── create_admin_account.sql # Admin account creation
 │   ├── database_schema.sql      # Complete database schema
-│   └── fix_rls_auth.sql         # RLS authentication fixes
+│   ├── fix_rls_auth.sql         # RLS authentication fixes
+│   └── update_user_table_structure.sql # Migration for new role/permission system
 ├── src/                          # Angular application source
 │   ├── app/
 │   │   ├── core/                 # Core services and guards
-│   │   │   ├── auth/
-│   │   │   │   ├── auth.service.ts
+│   │   │   ├── guards/
 │   │   │   │   ├── auth.guard.ts
 │   │   │   │   └── role.guard.ts
-│   │   │   ├── services/
-│   │   │   │   ├── api.service.ts
-│   │   │   │   ├── user.service.ts
-│   │   │   │   ├── disbursement.service.ts
-│   │   │   │   ├── report.service.ts
-│   │   │   │   └── audit.service.ts
-│   │   │   └── interceptors/
-│   │   │       ├── auth.interceptor.ts
-│   │   │       └── error.interceptor.ts
+│   │   │   └── services/
+│   │   │       ├── auth.service.ts
+│   │   │       ├── supabase.service.ts
+│   │   │       └── disbursement.service.ts
 │   │   ├── shared/               # Shared components and utilities
-│   │   │   ├── components/
-│   │   │   │   ├── header/
-│   │   │   │   ├── sidebar/
-│   │   │   │   ├── loading/
-│   │   │   │   ├── confirmation-dialog/
-│   │   │   │   └── data-table/
-│   │   │   ├── pipes/
-│   │   │   │   ├── currency.pipe.ts
-│   │   │   │   └── date-format.pipe.ts
-│   │   │   ├── validators/
-│   │   │   │   └── custom-validators.ts
-│   │   │   └── models/
-│   │   │       ├── user.model.ts
-│   │   │       ├── disbursement.model.ts
-│   │   │       ├── classification.model.ts
-│   │   │       └── report.model.ts
+│   │   │   └── components/
+│   │   │       └── header/
+│   │   │           ├── header.component.ts
+│   │   │           ├── header.component.html
+│   │   │           └── header.component.css
 │   │   ├── features/              # Feature modules
 │   │   │   ├── auth/
 │   │   │   │   ├── login/
@@ -90,38 +74,65 @@ e-fund-tracker/
 │   │   │   │   │   ├── chart-widget/
 │   │   │   │   │   └── recent-transactions/
 │   │   │   │   └── dashboard.module.ts
-│   │   │   ├── disbursements/
-│   │   │   │   ├── disbursement-list/
-│   │   │   │   │   ├── disbursement-list.component.ts
-│   │   │   │   │   ├── disbursement-list.component.html
-│   │   │   │   │   └── disbursement-list.component.css
-│   │   │   │   ├── disbursement-form/
-│   │   │   │   │   ├── disbursement-form.component.ts
-│   │   │   │   │   ├── disbursement-form.component.html
-│   │   │   │   │   └── disbursement-form.component.css
-│   │   │   │   ├── disbursement-detail/
-│   │   │   │   └── disbursements.module.ts
-│   │   │   ├── reports/
-│   │   │   │   ├── report-generator/
-│   │   │   │   │   ├── report-generator.component.ts
-│   │   │   │   │   ├── report-generator.component.html
-│   │   │   │   │   └── report-generator.component.css
-│   │   │   │   ├── report-viewer/
-│   │   │   │   ├── export-options/
-│   │   │   │   └── reports.module.ts
+│   │   │   ├── landing/
+│   │   │   │   ├── landing.component.ts
+│   │   │   │   ├── landing.component.html
+│   │   │   │   ├── landing.component.css
+│   │   │   │   └── landing.routes.ts
+│   │   │   ├── user/                 # Unified user module for ENCODER and VIEWER roles
+│   │   │   │   ├── user.routes.ts
+│   │   │   │   ├── dashboard/
+│   │   │   │   │   ├── user-dashboard.component.ts
+│   │   │   │   │   ├── user-dashboard.component.html
+│   │   │   │   │   ├── user-dashboard.component.css
+│   │   │   │   │   └── dashboard.routes.ts
+│   │   │   │   ├── entries/          # Disbursement management
+│   │   │   │   │   ├── disbursement-list/
+│   │   │   │   │   │   ├── disbursement-list.component.ts
+│   │   │   │   │   │   ├── disbursement-list.component.html
+│   │   │   │   │   │   └── disbursement-list.component.css
+│   │   │   │   │   ├── disbursement-form/
+│   │   │   │   │   │   ├── disbursement-form.component.ts
+│   │   │   │   │   │   ├── disbursement-form.component.html
+│   │   │   │   │   │   └── disbursement-form.component.css
+│   │   │   │   │   └── entries.routes.ts
+│   │   │   │   └── reports/          # Report generation and viewing
+│   │   │   │       ├── reports.component.ts
+│   │   │   │       ├── reports.component.html
+│   │   │   │       ├── reports.component.css
+│   │   │   │       ├── export-reports/
+│   │   │   │       │   ├── export-reports.component.ts
+│   │   │   │       │   ├── export-reports.component.html
+│   │   │   │       │   └── export-reports.component.css
+│   │   │   │       ├── my-reports/
+│   │   │   │       │   ├── my-reports.component.ts
+│   │   │   │       │   ├── my-reports.component.html
+│   │   │   │       │   ├── my-reports.component.css
+│   │   │   │       │   └── my-reports.routes.ts
+│   │   │   │       └── reports.routes.ts
 │   │   │   ├── admin/
-│   │   │   │   ├── user-management/
-│   │   │   │   │   ├── user-list/
-│   │   │   │   │   ├── user-form/
-│   │   │   │   │   └── user-detail/
-│   │   │   │   ├── classification-management/
-│   │   │   │   ├── system-logs/
-│   │   │   │   ├── settings/
-│   │   │   │   └── admin.module.ts
-│   │   │   └── archive/
-│   │   │       ├── archive-list/
-│   │   │       ├── archive-search/
-│   │   │       └── archive.module.ts
+│   │   │   │   ├── admin.routes.ts
+│   │   │   │   ├── admin-dashboard/
+│   │   │   │   │   ├── admin-dashboard.component.ts
+│   │   │   │   │   ├── admin-dashboard.component.html
+│   │   │   │   │   ├── admin-dashboard.component.css
+│   │   │   │   │   └── admin-dashboard.routes.ts
+│   │   │   │   └── manage-users/
+│   │   │   │       ├── manage-users.component.ts
+│   │   │   │       ├── manage-users.component.html
+│   │   │   │       ├── manage-users.component.css
+│   │   │   │       ├── manage-users.routes.ts
+│   │   │   │       └── user-form/
+│   │   │   │           ├── user-form.component.ts
+│   │   │   │           ├── user-form.component.html
+│   │   │   │           └── user-form.component.css
+│   │   │   └── shared-features/      # Shared components and services
+│   │   │       ├── connection-test/
+│   │   │       │   ├── connection-test.component.ts
+│   │   │       │   ├── connection-test.component.html
+│   │   │       │   └── connection-test.component.css
+│   │   │       └── services/
+│   │   │           └── sidebar.service.ts
 │   │   ├── layout/               # Layout components
 │   │   │   ├── main-layout/
 │   │   │   │   ├── main-layout.component.ts
@@ -131,11 +142,16 @@ e-fund-tracker/
 │   │   │       ├── auth-layout.component.ts
 │   │   │       ├── auth-layout.component.html
 │   │   │       └── auth-layout.component.css
+│   │   ├── types/                # TypeScript type definitions
+│   │   │   └── supabase.ts
+│   │   ├── app.config.server.ts
 │   │   ├── app.config.ts
+│   │   ├── app.routes.server.ts
 │   │   ├── app.routes.ts
-│   │   ├── app.component.ts
-│   │   ├── app.component.html
-│   │   └── app.component.css
+│   │   ├── app.spec.ts
+│   │   ├── app.ts
+│   │   ├── app.css
+│   │   └── app.html
 │   ├── environments/
 │   │   ├── environment.ts
 │   │   └── environment.prod.ts
@@ -218,28 +234,20 @@ The application has been restructured to use a **unified user module** instead o
 - Quick stats widgets
 - Recent transaction overview
 
-#### 3. Disbursements Module
-- Data entry forms with validation
-- Classification tagging
-- Edit/update capabilities
-- Filtering and sorting
+#### 3. User Module (Unified for ENCODER and VIEWER roles)
+- **Dashboard**: Financial summaries and quick stats
+- **Entries**: Data entry forms with validation, classification tagging, edit/update capabilities
+- **Reports**: Report generation interface, export options (PDF, Excel), custom date ranges
+- **Role-based Access**: Dynamic UI based on user permissions (ENCODER vs VIEWER)
 
-#### 4. Reports Module
-- Report generation interface
-- Export options (PDF, Excel)
-- Custom date ranges
-- Department/category filtering
+#### 4. Admin Module (Admin only)
+- **Admin Dashboard**: System overview and statistics
+- **User Management**: User account creation, editing, role/permission assignment
+- **System Monitoring**: Activity logs and system health
 
-#### 5. Admin Module (Admin only)
-- User account management
-- Classification configuration
-- System monitoring
-- Settings management
-
-#### 6. Archive Module
-- Historical transaction search
-- Data archival management
-- Audit trail viewing
+#### 5. Shared Features Module
+- **Connection Test**: Database connectivity verification
+- **Services**: Shared business logic and utilities
 
 ## Technology Stack
 - **Frontend**: Angular 20+ with TypeScript

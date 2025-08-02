@@ -50,23 +50,36 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
             <div class="form-group">
               <label for="role">Role *</label>
               <select id="role" formControlName="role" class="form-control"
+                      (change)="onRoleChange()"
                       [class.error]="userForm.get('role')?.invalid && userForm.get('role')?.touched">
                 <option value="">Select a role</option>
                 <option value="admin">Administrator</option>
-                <option value="encoder">Encoder</option>
-                <option value="viewer">Viewer</option>
+                <option value="user">User</option>
               </select>
               <div class="error-message" *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched">
                 Role is required
               </div>
             </div>
             
-            <div class="form-group">
-              <label for="isActive">Status</label>
-              <div class="checkbox-group">
-                <input type="checkbox" id="isActive" formControlName="isActive" class="checkbox">
-                <label for="isActive" class="checkbox-label">Active User</label>
+            <div class="form-group" *ngIf="userForm.get('role')?.value === 'user'">
+              <label for="permission">Permission *</label>
+              <select id="permission" formControlName="permission" class="form-control"
+                      [class.error]="userForm.get('permission')?.invalid && userForm.get('permission')?.touched">
+                <option value="">Select permission</option>
+                <option value="encoder">Encoder (Can create and edit entries)</option>
+                <option value="viewer">Viewer (Read-only access)</option>
+              </select>
+              <div class="error-message" *ngIf="userForm.get('permission')?.invalid && userForm.get('permission')?.touched">
+                Permission is required for user role
               </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="isActive">Status</label>
+            <div class="checkbox-group">
+              <input type="checkbox" id="isActive" formControlName="isActive" class="checkbox">
+              <label for="isActive" class="checkbox-label">Active User</label>
             </div>
           </div>
           
@@ -237,9 +250,22 @@ export class UserFormComponent implements OnInit {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       role: ['', Validators.required],
+      permission: [''],
       isActive: [true],
       password: [''],
       confirmPassword: ['']
+    });
+    
+    // Set up conditional validation for permission field
+    this.userForm.get('role')?.valueChanges.subscribe(role => {
+      const permissionControl = this.userForm.get('permission');
+      if (role === 'user') {
+        permissionControl?.setValidators([Validators.required]);
+      } else {
+        permissionControl?.clearValidators();
+        permissionControl?.setValue('');
+      }
+      permissionControl?.updateValueAndValidity();
     });
   }
 
@@ -266,6 +292,15 @@ export class UserFormComponent implements OnInit {
       return { passwordMismatch: true };
     }
     return null;
+  }
+  
+  onRoleChange() {
+    // This method is called when role changes in the template
+    // The actual logic is handled by the valueChanges subscription in the constructor
+    const role = this.userForm.get('role')?.value;
+    if (role !== 'user') {
+      this.userForm.get('permission')?.setValue('');
+    }
   }
 
   onSubmit() {

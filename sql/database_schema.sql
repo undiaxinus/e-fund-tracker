@@ -5,7 +5,8 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Create ENUM types
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'ENCODER', 'VIEWER');
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'USER');
+CREATE TYPE "Permission" AS ENUM ('ENCODER', 'VIEWER');
 CREATE TYPE "Classification" AS ENUM ('PS', 'MOOE', 'CO', 'TR');
 CREATE TYPE "DisbursementStatus" AS ENUM ('ACTIVE', 'ARCHIVED', 'DELETED');
 CREATE TYPE "AuditAction" AS ENUM ('CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT');
@@ -18,7 +19,8 @@ CREATE TABLE "User" (
     "password_hash" TEXT NOT NULL,
     "first_name" VARCHAR(100) NOT NULL,
     "last_name" VARCHAR(100) NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'VIEWER',
+    "role" "Role" NOT NULL DEFAULT 'USER',
+    "permission" "Permission",
     "department" VARCHAR(100),
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "last_login" TIMESTAMP(3),
@@ -230,9 +232,9 @@ CREATE POLICY "Only admins can manage users" ON "User"
 CREATE POLICY "Authenticated users can view disbursements" ON "Disbursement"
     FOR SELECT USING (auth.role() = 'authenticated');
 
--- Only encoders and admins can create/update disbursements
+-- Only users with encoder permission and admins can create/update disbursements
 CREATE POLICY "Encoders and admins can manage disbursements" ON "Disbursement"
-    FOR ALL USING (EXISTS (SELECT 1 FROM "User" WHERE id::text = auth.uid()::text AND role IN ('ADMIN', 'ENCODER')));
+    FOR ALL USING (EXISTS (SELECT 1 FROM "User" WHERE id::text = auth.uid()::text AND (role = 'ADMIN' OR (role = 'USER' AND permission = 'ENCODER'))));
 
 -- Audit logs are viewable by admins only
 CREATE POLICY "Only admins can view audit logs" ON "AuditLog"
@@ -306,7 +308,8 @@ COMMENT ON TABLE "ClassificationConfig" IS 'Configuration for disbursement class
 COMMENT ON TABLE "SystemConfig" IS 'System-wide configuration settings';
 
 COMMENT ON COLUMN "Disbursement"."classification" IS 'PS=Personnel Services, MOOE=Maintenance and Other Operating Expenses, CO=Capital Outlay, TR=Transfers';
-COMMENT ON COLUMN "User"."role" IS 'ADMIN=Full access, ENCODER=Data entry, VIEWER=Read-only';
+COMMENT ON COLUMN "User"."role" IS 'ADMIN=Full access, USER=Limited access based on permission';
+COMMENT ON COLUMN "User"."permission" IS 'ENCODER=Can create/edit entries, VIEWER=Read-only access (only for USER role)';
 
 -- Grant necessary permissions to authenticated users
 GRANT USAGE ON SCHEMA public TO authenticated;
