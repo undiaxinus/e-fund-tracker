@@ -175,9 +175,9 @@ export class AuthService {
       case 'ADMIN':
         return '/admin/dashboard';
       case 'ENCODER':
-        return '/encoder/entries';
+        return '/user/entries';
       case 'VIEWER':
-        return '/viewer/dashboard';
+        return '/user/dashboard';
       default:
         return '/dashboard';
     }

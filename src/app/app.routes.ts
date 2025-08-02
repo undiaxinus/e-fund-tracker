@@ -176,14 +176,6 @@ export const routes: Routes = [
         path: 'admin',
         loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
       },
-      {
-        path: 'encoder',
-        loadChildren: () => import('./features/encoder/encoder.routes').then(m => m.encoderRoutes)
-      },
-      {
-        path: 'viewer',
-        loadChildren: () => import('./features/viewer/viewer.routes').then(m => m.viewerRoutes)
-      },
       // Default redirect for authenticated users
       {
         path: '',

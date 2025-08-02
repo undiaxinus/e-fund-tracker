@@ -18,10 +18,6 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
-    path: 'encoder/entries/edit/:id',
-    renderMode: RenderMode.Server
-  },
-  {
     path: '**',
     renderMode: RenderMode.Server
   }

@@ -184,8 +184,8 @@ export class SidebarService {
 
     const routeMap: { [key: string]: string } = {
       'ADMIN': '/admin/dashboard',
-      'ENCODER': '/encoder/entries',
-      'VIEWER': '/viewer/dashboard'
+      'ENCODER': '/user/entries',
+      'VIEWER': '/user/dashboard'
     };
 
     return {
@@ -203,4 +203,4 @@ export class SidebarService {
     const routes = this.getRoleBasedRoutes();
     return routes['dashboard'];
   }
-} 
+}

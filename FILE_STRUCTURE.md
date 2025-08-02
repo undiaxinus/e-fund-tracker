@@ -19,84 +19,68 @@ e-fund-tracker/
 ├── src/
 │   ├── app/
 │   │   ├── core/                 # Core services and guards
-│   │   │   ├── auth/
-│   │   │   │   ├── auth.service.ts
+│   │   │   ├── guards/
 │   │   │   │   ├── auth.guard.ts
 │   │   │   │   └── role.guard.ts
 │   │   │   ├── services/
-│   │   │   │   ├── api.service.ts
-│   │   │   │   ├── user.service.ts
-│   │   │   │   ├── disbursement.service.ts
-│   │   │   │   ├── report.service.ts
-│   │   │   │   └── audit.service.ts
+│   │   │   │   ├── auth.service.ts
+│   │   │   │   ├── supabase.service.ts
+│   │   │   │   └── disbursement.service.ts
 │   │   │   └── interceptors/
 │   │   │       ├── auth.interceptor.ts
 │   │   │       └── error.interceptor.ts
 │   │   ├── shared/               # Shared components and utilities
 │   │   │   ├── components/
-│   │   │   │   ├── header/
-│   │   │   │   ├── sidebar/
-│   │   │   │   ├── loading/
-│   │   │   │   ├── confirmation-dialog/
-│   │   │   │   └── data-table/
-│   │   │   ├── pipes/
-│   │   │   │   ├── currency.pipe.ts
-│   │   │   │   └── date-format.pipe.ts
-│   │   │   ├── validators/
-│   │   │   │   └── custom-validators.ts
-│   │   │   └── models/
-│   │   │       ├── user.model.ts
-│   │   │       ├── disbursement.model.ts
-│   │   │       ├── classification.model.ts
-│   │   │       └── report.model.ts
+│   │   │   │   └── connection-test/
+│   │   │   │       └── connection-test.component.ts
+│   │   │   └── services/
+│   │   │       └── sidebar.service.ts
 │   │   ├── features/              # Feature modules
 │   │   │   ├── auth/
-│   │   │   │   ├── login/
-│   │   │   │   │   ├── login.component.ts
-│   │   │   │   │   ├── login.component.html
-│   │   │   │   │   └── login.component.css
-│   │   │   │   └── auth.module.ts
+│   │   │   │   └── login/
+│   │   │   │       ├── login.component.ts
+│   │   │   │       ├── login.component.html
+│   │   │   │       └── login.component.css
 │   │   │   ├── dashboard/
 │   │   │   │   ├── dashboard.component.ts
 │   │   │   │   ├── dashboard.component.html
-│   │   │   │   ├── dashboard.component.css
-│   │   │   │   ├── widgets/
-│   │   │   │   │   ├── summary-card/
-│   │   │   │   │   ├── chart-widget/
-│   │   │   │   │   └── recent-transactions/
-│   │   │   │   └── dashboard.module.ts
-│   │   │   ├── disbursements/
-│   │   │   │   ├── disbursement-list/
-│   │   │   │   │   ├── disbursement-list.component.ts
-│   │   │   │   │   ├── disbursement-list.component.html
-│   │   │   │   │   └── disbursement-list.component.css
-│   │   │   │   ├── disbursement-form/
-│   │   │   │   │   ├── disbursement-form.component.ts
-│   │   │   │   │   ├── disbursement-form.component.html
-│   │   │   │   │   └── disbursement-form.component.css
-│   │   │   │   ├── disbursement-detail/
-│   │   │   │   └── disbursements.module.ts
-│   │   │   ├── reports/
-│   │   │   │   ├── report-generator/
-│   │   │   │   │   ├── report-generator.component.ts
-│   │   │   │   │   ├── report-generator.component.html
-│   │   │   │   │   └── report-generator.component.css
-│   │   │   │   ├── report-viewer/
-│   │   │   │   ├── export-options/
-│   │   │   │   └── reports.module.ts
+│   │   │   │   └── dashboard.component.css
+│   │   │   ├── landing/
+│   │   │   │   ├── landing.component.ts
+│   │   │   │   ├── landing.component.html
+│   │   │   │   └── landing.component.css
 │   │   │   ├── admin/
-│   │   │   │   ├── user-management/
-│   │   │   │   │   ├── user-list/
-│   │   │   │   │   ├── user-form/
-│   │   │   │   │   └── user-detail/
-│   │   │   │   ├── classification-management/
-│   │   │   │   ├── system-logs/
-│   │   │   │   ├── settings/
-│   │   │   │   └── admin.module.ts
-│   │   │   └── archive/
-│   │   │       ├── archive-list/
-│   │   │       ├── archive-search/
-│   │   │       └── archive.module.ts
+│   │   │   │   ├── admin.routes.ts
+│   │   │   │   ├── dashboard/
+│   │   │   │   │   ├── dashboard.component.ts
+│   │   │   │   │   ├── dashboard.component.html
+│   │   │   │   │   └── dashboard.component.css
+│   │   │   │   ├── manage-users/
+│   │   │   │   │   ├── manage-users.component.ts
+│   │   │   │   │   ├── manage-users.routes.ts
+│   │   │   │   │   └── user-form/
+│   │   │   │   ├── manage-roles/
+│   │   │   │   │   ├── manage-roles.component.ts
+│   │   │   │   │   └── manage-roles.routes.ts
+│   │   │   │   └── manage-classifications/
+│   │   │   │       ├── manage-classifications.component.ts
+│   │   │   │       └── manage-classifications.routes.ts
+│   │   │   ├── user/                # Unified user module for ENCODER and VIEWER roles
+│   │   │   │   ├── user.routes.ts
+│   │   │   │   ├── dashboard/
+│   │   │   │   │   └── user-dashboard.component.ts
+│   │   │   │   ├── entries/
+│   │   │   │   │   ├── disbursement-list/
+│   │   │   │   │   │   └── disbursement-list.component.ts
+│   │   │   │   │   └── disbursement-form/
+│   │   │   │   │       └── disbursement-form.component.ts
+│   │   │   │   └── reports/
+│   │   │   │       ├── reports.component.ts
+│   │   │   │       ├── export-reports/
+│   │   │   │       │   └── export-reports.component.ts
+│   │   │   │       └── my-reports/
+│   │   │   │           └── my-reports.component.ts
+│   │   │   └── shared-features/
 │   │   ├── layout/               # Layout components
 │   │   │   ├── main-layout/
 │   │   │   │   ├── main-layout.component.ts
@@ -160,6 +144,27 @@ e-fund-tracker/
 - **User Management**: Admin panel for user control
 - **Audit Trail**: System logs and activity tracking
 
+### Architectural Changes
+
+#### Unified User Module Approach
+The application has been restructured to use a **unified user module** instead of separate encoder and viewer modules:
+
+- **Before**: Separate `/encoder` and `/viewer` feature modules
+- **After**: Single `/user` module with role-based permissions
+
+#### Benefits of Unified Architecture
+1. **Code Reusability**: Shared components between ENCODER and VIEWER roles
+2. **Simplified Maintenance**: Single codebase for user-facing features
+3. **Consistent UI/UX**: Uniform experience across different user roles
+4. **Role-based Access**: Dynamic content based on user permissions within the same components
+5. **Scalability**: Easier to add new roles or modify permissions
+
+#### Role-based Access Implementation
+- **ENCODER Role**: Full access to entries (create, edit, delete) + reports
+- **VIEWER Role**: Read-only access to dashboard and reports
+- **Dynamic UI**: Components show/hide features based on user permissions
+- **Route Guards**: Protect sensitive operations at the route level
+
 ### Module Breakdown
 
 #### 1. Auth Module
@@ -167,33 +172,32 @@ e-fund-tracker/
 - Role-based route protection
 - Session management
 
-#### 2. Dashboard Module
-- Financial summaries
-- Quick stats widgets
-- Recent transaction overview
+#### 2. Landing Module
+- Public landing page
+- System overview
+- Login navigation
 
-#### 3. Disbursements Module
-- Data entry forms with validation
-- Classification tagging
-- Edit/update capabilities
-- Filtering and sorting
+#### 3. Dashboard Module
+- General dashboard components
+- Shared dashboard utilities
 
-#### 4. Reports Module
-- Report generation interface
-- Export options (PDF, Excel)
-- Custom date ranges
-- Department/category filtering
-
-#### 5. Admin Module (Admin only)
+#### 4. Admin Module (Admin only)
 - User account management
+- Role management
 - Classification configuration
-- System monitoring
-- Settings management
+- System monitoring and settings
+- Complete administrative control
 
-#### 6. Archive Module
-- Historical transaction search
-- Data archival management
-- Audit trail viewing
+#### 5. User Module (Unified for ENCODER and VIEWER roles)
+- **Dashboard**: Role-based dashboard with statistics and quick actions
+- **Entries**: Disbursement data entry and management (ENCODER access)
+  - Disbursement list with filtering and sorting
+  - Disbursement form for create/edit operations
+- **Reports**: Comprehensive reporting system
+  - Main reports with analytics and charts
+  - Export functionality (PDF, Excel, CSV)
+  - Personal report management for encoders
+- **Role-based permissions**: Different access levels within the same module
 
 ## Technology Stack
 - **Frontend**: Angular 20+ with TypeScript
