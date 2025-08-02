@@ -95,9 +95,37 @@ export class AuthService {
     this.initializeAuth();
   }
 
+  // Helper method to safely access localStorage
+  private isLocalStorageAvailable(): boolean {
+    try {
+      return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+    } catch {
+      return false;
+    }
+  }
+
+  private getLocalStorageItem(key: string): string | null {
+    if (this.isLocalStorageAvailable()) {
+      return localStorage.getItem(key);
+    }
+    return null;
+  }
+
+  private setLocalStorageItem(key: string, value: string): void {
+    if (this.isLocalStorageAvailable()) {
+      localStorage.setItem(key, value);
+    }
+  }
+
+  private removeLocalStorageItem(key: string): void {
+    if (this.isLocalStorageAvailable()) {
+      localStorage.removeItem(key);
+    }
+  }
+
   private async initializeAuth() {
     // Check for saved session token on app start
-    const sessionToken = localStorage.getItem('sessionToken');
+    const sessionToken = this.getLocalStorageItem('sessionToken');
     if (sessionToken) {
       try {
         // Validate session with database
@@ -122,14 +150,14 @@ export class AuthService {
           console.log('Restored user session from database:', userToSet);
         } else {
           // Invalid or expired session
-          localStorage.removeItem('sessionToken');
-          localStorage.removeItem('currentUser');
+          this.removeLocalStorageItem('sessionToken');
+          this.removeLocalStorageItem('currentUser');
           this.isAuthenticatedSubject.next(false);
         }
       } catch (error) {
         console.error('Error validating session:', error);
-        localStorage.removeItem('sessionToken');
-        localStorage.removeItem('currentUser');
+        this.removeLocalStorageItem('sessionToken');
+        this.removeLocalStorageItem('currentUser');
         this.isAuthenticatedSubject.next(false);
       }
     } else {
@@ -186,8 +214,8 @@ export class AuthService {
           this.isAuthenticatedSubject.next(true);
           
           // Save session token and user data to localStorage
-          localStorage.setItem('sessionToken', sessionToken);
-          localStorage.setItem('currentUser', JSON.stringify(userToSet));
+          this.setLocalStorageItem('sessionToken', sessionToken);
+          this.setLocalStorageItem('currentUser', JSON.stringify(userToSet));
           
           // Update last login time
           await this.supabaseService.updateUser(dbUser.id, {
@@ -226,8 +254,8 @@ export class AuthService {
          this.isAuthenticatedSubject.next(true);
          
          // Save mock session token and user data to localStorage
-         localStorage.setItem('sessionToken', mockSessionToken);
-         localStorage.setItem('currentUser', JSON.stringify(userToSet));
+         this.setLocalStorageItem('sessionToken', mockSessionToken);
+         this.setLocalStorageItem('currentUser', JSON.stringify(userToSet));
          
          // Navigate to appropriate dashboard based on role
          const dashboardRoute = this.getDashboardRouteForRole(userToSet.role, userToSet.permission);
@@ -308,7 +336,7 @@ export class AuthService {
 
   async signOut(): Promise<void> {
     const currentUser = this.currentUserSubject.value;
-    const sessionToken = localStorage.getItem('sessionToken');
+    const sessionToken = this.getLocalStorageItem('sessionToken');
     
     if (currentUser) {
       await this.logAuditAction('LOGOUT', 'User', currentUser.id);
@@ -328,8 +356,8 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
     
     // Clear localStorage
-    localStorage.removeItem('sessionToken');
-    localStorage.removeItem('currentUser');
+    this.removeLocalStorageItem('sessionToken');
+    this.removeLocalStorageItem('currentUser');
     
     this.router.navigate(['/auth/login']);
   }
@@ -451,7 +479,7 @@ export class AuthService {
   }
 
   async getCurrentSessionInfo() {
-    const sessionToken = localStorage.getItem('sessionToken');
+    const sessionToken = this.getLocalStorageItem('sessionToken');
     if (!sessionToken || sessionToken.startsWith('mock_')) {
       return null;
     }
@@ -465,7 +493,7 @@ export class AuthService {
   }
 
   async extendCurrentSession(): Promise<{ success: boolean; error?: string }> {
-    const sessionToken = localStorage.getItem('sessionToken');
+    const sessionToken = this.getLocalStorageItem('sessionToken');
     if (!sessionToken || sessionToken.startsWith('mock_')) {
       return { success: false, error: 'No valid session to extend' };
     }
@@ -487,7 +515,7 @@ export class AuthService {
       }
       
       // Update localStorage with new token
-      localStorage.setItem('sessionToken', newToken);
+      this.setLocalStorageItem('sessionToken', newToken);
       
       return { success: true };
     } catch (error: any) {
