@@ -78,7 +78,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const roleMap: { [key: string]: string } = {
       'ADMIN': 'Administrator',
       'ENCODER': 'Data Encoder',
-      'VIEWER': 'Viewer'
+      'VIEWER': 'Viewer',
+      'USER': 'User'
     };
     return roleMap[this.currentUser.role] || this.currentUser.role;
   }
@@ -93,6 +94,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       } else if (this.currentUser?.permission === 'VIEWER') {
         return 'role-viewer';
       }
+    } else if (this.currentUser?.role === 'ENCODER') {
+      return 'role-encoder';
+    } else if (this.currentUser?.role === 'VIEWER') {
+      return 'role-viewer';
     }
     return 'role-default';
   }
@@ -102,6 +107,58 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (hour < 12) return 'Good Morning';
     if (hour < 17) return 'Good Afternoon';
     return 'Good Evening';
+  }
+
+  getCurrentPageTitle(): string {
+    const currentUrl = this.router.url;
+    
+    if (currentUrl.includes('/dashboard')) {
+      return 'Dashboard';
+    } else if (currentUrl.includes('/disbursements/new')) {
+      return 'New Fund Disbursement';
+    } else if (currentUrl.includes('/disbursements')) {
+      return 'Fund Disbursements';
+    } else if (currentUrl.includes('/reports')) {
+      return 'Fund Reports';
+    } else if (currentUrl.includes('/admin')) {
+      return 'System Administration';
+    } else if (currentUrl.includes('/search')) {
+      return 'Search & Filter';
+    } else if (currentUrl.includes('/archived')) {
+      return 'Archived Funds';
+    } else if (currentUrl.includes('/classify')) {
+      return 'Classify Fund Type';
+    } else if (currentUrl.includes('/my-entries')) {
+      return 'My Fund Entries';
+    }
+    
+    return 'E-Fund Tracker';
+  }
+
+  getCurrentPageDescription(): string {
+    const currentUrl = this.router.url;
+    
+    if (currentUrl.includes('/dashboard')) {
+      return 'Overview of fund management activities';
+    } else if (currentUrl.includes('/disbursements/new')) {
+      return 'Create a new fund disbursement record';
+    } else if (currentUrl.includes('/disbursements')) {
+      return 'View and manage fund disbursements';
+    } else if (currentUrl.includes('/reports')) {
+      return 'Generate and export fund reports';
+    } else if (currentUrl.includes('/admin')) {
+      return 'System administration and settings';
+    } else if (currentUrl.includes('/search')) {
+      return 'Search and filter fund records';
+    } else if (currentUrl.includes('/archived')) {
+      return 'View archived fund transactions';
+    } else if (currentUrl.includes('/classify')) {
+      return 'Classify fund types and categories';
+    } else if (currentUrl.includes('/my-entries')) {
+      return 'View and edit your fund entries';
+    }
+    
+    return 'Fund Management System';
   }
 
   // Notification system (placeholder for future implementation)

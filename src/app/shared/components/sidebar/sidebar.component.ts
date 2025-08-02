@@ -106,7 +106,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const roleMap: { [key: string]: string } = {
       'ADMIN': 'Administrator',
       'ENCODER': 'Data Encoder',
-      'VIEWER': 'Viewer'
+      'VIEWER': 'Viewer',
+      'USER': 'User'
     };
     return roleMap[this.currentUser.role] || this.currentUser.role;
   }
@@ -121,6 +122,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
       } else if (this.currentUser.permission === 'VIEWER') {
         return 'role-viewer';
       }
+    } else if (this.currentUser.role === 'ENCODER') {
+      return 'role-encoder';
+    } else if (this.currentUser.role === 'VIEWER') {
+      return 'role-viewer';
     }
     return 'role-default';
   }
