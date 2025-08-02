@@ -1,7 +1,11 @@
 export enum UserRole {
-  ADMIN = 'admin',
-  ENCODER = 'encoder',
-  VIEWER = 'viewer'
+  ADMIN = 'ADMIN',
+  USER = 'USER'
+}
+
+export enum Permission {
+  ENCODER = 'ENCODER',
+  VIEWER = 'VIEWER'
 }
 
 export enum DisbursementClassification {

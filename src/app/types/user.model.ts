@@ -1,4 +1,4 @@
-import { UserRole } from './enums';
+import { UserRole, Permission } from './enums';
 
 export interface User {
   id: string;
@@ -6,6 +6,8 @@ export interface User {
   firstName: string;
   lastName: string;
   role: UserRole;
+  permission?: Permission; // Only for USER role, null for ADMIN
+  department?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -17,6 +19,8 @@ export interface CreateUserRequest {
   firstName: string;
   lastName: string;
   role: UserRole;
+  permission?: Permission;
+  department?: string;
   password: string;
 }
 
@@ -24,6 +28,8 @@ export interface UpdateUserRequest {
   firstName?: string;
   lastName?: string;
   role?: UserRole;
+  permission?: Permission;
+  department?: string;
   isActive?: boolean;
 }
 
