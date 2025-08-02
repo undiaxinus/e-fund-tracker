@@ -492,7 +492,7 @@ export class DisbursementListComponent implements OnInit {
 
   private loadUserPermissions() {
     this.authService.currentUser$.subscribe(user => {
-      this.canEdit = user?.role === 'ENCODER' || user?.role === 'ADMIN';
+      this.canEdit = (user?.role === 'USER' && user?.permission === 'ENCODER') || user?.role === 'ADMIN';
     });
   }
 

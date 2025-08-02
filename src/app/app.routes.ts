@@ -171,10 +171,14 @@ export const routes: Routes = [
           }
         ]
       },
-      // Legacy role-based routes for backward compatibility
+      // Role-based routes
       {
         path: 'admin',
         loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
+      },
+      {
+        path: 'user',
+        loadChildren: () => import('./features/user/user.routes').then(m => m.userRoutes)
       },
       // Default redirect for authenticated users
       {

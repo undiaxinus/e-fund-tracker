@@ -7,10 +7,10 @@ import { User } from '@supabase/supabase-js';
 export interface AppUser {
   id: string;
   email: string;
-  username: string;
   firstName: string;
   lastName: string;
-  role: 'ADMIN' | 'ENCODER' | 'VIEWER';
+  role: 'ADMIN' | 'USER';
+  permission?: 'ENCODER' | 'VIEWER';
   department?: string;
   isActive: boolean;
 }
@@ -38,7 +38,6 @@ export class AuthService {
       user: {
         id: 'admin-user-id',
         email: 'admin@efund.gov',
-        username: 'admin',
         firstName: 'System',
         lastName: 'Administrator',
         role: 'ADMIN',
@@ -52,7 +51,6 @@ export class AuthService {
       user: {
         id: 'admin2-user-id',
         email: 'admin2@efund.gov.ph',
-        username: 'admin2',
         firstName: 'Secondary',
         lastName: 'Administrator',
         role: 'ADMIN',
@@ -66,10 +64,10 @@ export class AuthService {
       user: {
         id: 'encoder-user-id',
         email: 'test@example.com',
-        username: 'encoder',
         firstName: 'Data',
         lastName: 'Encoder',
-        role: 'ENCODER',
+        role: 'USER',
+        permission: 'ENCODER',
         department: 'Finance Department',
         isActive: true
       }
@@ -80,10 +78,10 @@ export class AuthService {
       user: {
         id: 'viewer-user-id',
         email: 'user@test.com',
-        username: 'viewer',
         firstName: 'Report',
         lastName: 'Viewer',
-        role: 'VIEWER',
+        role: 'USER',
+        permission: 'VIEWER',
         department: 'Audit Department',
         isActive: true
       }
@@ -106,17 +104,19 @@ export class AuthService {
         const { data: sessionData, error } = await this.supabaseService.validateSession(sessionToken);
         
         if (sessionData && !error && sessionData.User) {
+          console.log('Raw database user data:', sessionData.User);
           const userToSet = {
             id: sessionData.User.id,
             email: sessionData.User.email,
-            username: sessionData.User.email.split('@')[0],
             firstName: sessionData.User.first_name,
             lastName: sessionData.User.last_name,
             role: sessionData.User.role,
+            permission: sessionData.User.permission,
             department: sessionData.User.department,
             isActive: sessionData.User.is_active
           };
           
+          console.log('Auth Service: User data to set:', userToSet);
           this.currentUserSubject.next(userToSet);
           this.isAuthenticatedSubject.next(true);
           console.log('Restored user session from database:', userToSet);
@@ -173,14 +173,15 @@ export class AuthService {
           const userToSet = {
             id: dbUser.id,
             email: dbUser.email,
-            username: dbUser.email.split('@')[0],
             firstName: dbUser.first_name,
             lastName: dbUser.last_name,
             role: dbUser.role,
+            permission: dbUser.permission,
             department: dbUser.department,
             isActive: dbUser.is_active
           };
           
+          console.log('Auth Service: User data to set:', userToSet);
           this.currentUserSubject.next(userToSet);
           this.isAuthenticatedSubject.next(true);
           
@@ -194,7 +195,9 @@ export class AuthService {
           });
           
           // Navigate to appropriate dashboard based on role
-          const dashboardRoute = this.getDashboardRouteForRole(userToSet.role);
+          const dashboardRoute = this.getDashboardRouteForRole(userToSet.role, userToSet.permission);
+          console.log('Auth Service: Dashboard route determined:', dashboardRoute);
+          console.log('Auth Service: Navigating to:', dashboardRoute);
           this.router.navigate([dashboardRoute]);
           
           return { success: true };
@@ -218,6 +221,7 @@ export class AuthService {
          const mockSessionToken = 'mock_' + crypto.randomUUID();
          
          // Set the authenticated user
+         console.log('Auth Service: User data to set:', userToSet);
          this.currentUserSubject.next(userToSet);
          this.isAuthenticatedSubject.next(true);
          
@@ -226,7 +230,9 @@ export class AuthService {
          localStorage.setItem('currentUser', JSON.stringify(userToSet));
          
          // Navigate to appropriate dashboard based on role
-         const dashboardRoute = this.getDashboardRouteForRole(userToSet.role);
+         const dashboardRoute = this.getDashboardRouteForRole(userToSet.role, userToSet.permission);
+         console.log('Auth Service: Dashboard route determined:', dashboardRoute);
+         console.log('Auth Service: Navigating to:', dashboardRoute);
          this.router.navigate([dashboardRoute]);
          
          return { success: true };
@@ -239,17 +245,17 @@ export class AuthService {
     }
   }
 
-  private getDashboardRouteForRole(role: string): string {
-    switch (role) {
-      case 'ADMIN':
-        return '/admin/dashboard';
-      case 'ENCODER':
-        return '/user/entries';
-      case 'VIEWER':
-        return '/user/dashboard';
-      default:
-        return '/dashboard';
+  private getDashboardRouteForRole(role: string, permission?: string): string {
+    console.log('getDashboardRouteForRole called with role:', role, 'permission:', permission);
+    if (role === 'ADMIN') {
+      console.log('Routing ADMIN to /admin/dashboard');
+      return '/admin/dashboard';
+    } else if (role === 'USER') {
+      console.log('Routing USER to /user/dashboard');
+      return '/user/dashboard';
     }
+    console.log('Routing unknown role to /dashboard');
+    return '/dashboard';
   }
 
   async signUp(userData: {
@@ -257,8 +263,8 @@ export class AuthService {
     password: string;
     firstName: string;
     lastName: string;
-    username: string;
-    role: 'ADMIN' | 'ENCODER' | 'VIEWER';
+    role: 'ADMIN' | 'USER';
+    permission?: 'ENCODER' | 'VIEWER';
     department?: string;
   }): Promise<{ success: boolean; error?: string }> {
     try {
@@ -267,8 +273,7 @@ export class AuthService {
         userData.password,
         {
           firstName: userData.firstName,
-          lastName: userData.lastName,
-          username: userData.username
+          lastName: userData.lastName
         }
       );
 
@@ -281,7 +286,6 @@ export class AuthService {
         const { error: profileError } = await this.supabaseService.createUser({
           id: data.user.id,
           email: userData.email,
-          username: userData.username,
           firstName: userData.firstName,
           lastName: userData.lastName,
           role: userData.role,
@@ -363,19 +367,23 @@ export class AuthService {
   }
 
   isEncoder(): boolean {
-    return this.hasRole('ENCODER');
+    const user = this.getCurrentUser();
+    return user?.role === 'USER' && user?.permission === 'ENCODER';
   }
 
   isViewer(): boolean {
-    return this.hasRole('VIEWER');
+    const user = this.getCurrentUser();
+    return user?.role === 'USER' && user?.permission === 'VIEWER';
   }
 
   canEdit(): boolean {
-    return this.hasAnyRole(['ADMIN', 'ENCODER']);
+    const user = this.getCurrentUser();
+    return user?.role === 'ADMIN' || (user?.role === 'USER' && user?.permission === 'ENCODER');
   }
 
   canView(): boolean {
-    return this.hasAnyRole(['ADMIN', 'ENCODER', 'VIEWER']);
+    const user = this.getCurrentUser();
+    return user?.role === 'ADMIN' || (user?.role === 'USER' && (user?.permission === 'ENCODER' || user?.permission === 'VIEWER'));
   }
 
   canManageUsers(): boolean {

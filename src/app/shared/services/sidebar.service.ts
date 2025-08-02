@@ -183,15 +183,16 @@ export class SidebarService {
     const user = this.authService.getCurrentUser();
     if (!user) return { default: '/auth/login' };
 
-    const routeMap: { [key: string]: string } = {
-      'ADMIN': '/admin/dashboard',
-      'ENCODER': '/user/entries',
-      'VIEWER': '/user/dashboard'
-    };
+    let defaultRoute = '/auth/login';
+    if (user.role === 'ADMIN') {
+      defaultRoute = '/admin/dashboard';
+    } else if (user.role === 'USER') {
+      defaultRoute = '/user/dashboard';
+    }
 
     return {
-      default: routeMap[user.role] || '/auth/login',
-      dashboard: routeMap[user.role] || '/auth/login'
+      default: defaultRoute,
+      dashboard: defaultRoute
     };
   }
 

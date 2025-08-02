@@ -113,12 +113,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   getRoleBadgeClass(): string {
     if (!this.currentUser) return 'role-default';
-    const roleClasses: { [key: string]: string } = {
-      'ADMIN': 'role-admin',
-      'ENCODER': 'role-encoder',
-      'VIEWER': 'role-viewer'
-    };
-    return roleClasses[this.currentUser.role] || 'role-default';
+    if (this.currentUser.role === 'ADMIN') {
+      return 'role-admin';
+    } else if (this.currentUser.role === 'USER') {
+      if (this.currentUser.permission === 'ENCODER') {
+        return 'role-encoder';
+      } else if (this.currentUser.permission === 'VIEWER') {
+        return 'role-viewer';
+      }
+    }
+    return 'role-default';
   }
 
   isRouteActive(route: string): boolean {
@@ -163,4 +167,4 @@ export class SidebarComponent implements OnInit, OnDestroy {
   hasNotifications(): boolean {
     return this.getNotificationCount() > 0;
   }
-} 
+}

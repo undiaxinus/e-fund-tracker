@@ -173,12 +173,7 @@ export class LayoutService {
         this.showHeader(true);
         this.showFooter(true);
         break;
-      case 'ENCODER':
-        this.showSidebar(true);
-        this.showHeader(true);
-        this.showFooter(true);
-        break;
-      case 'VIEWER':
+      case 'USER':
         this.showSidebar(true);
         this.showHeader(true);
         this.showFooter(true);
@@ -213,4 +208,4 @@ export class LayoutService {
       breadcrumbs: []
     });
   }
-} 
+}

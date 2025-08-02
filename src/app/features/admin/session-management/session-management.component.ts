@@ -90,7 +90,7 @@ interface SessionInfo {
             
             <div class="session-actions">
               <button 
-                (click)="forceLogoutUser(session.user_id, session.User?.first_name + ' ' + session.User?.last_name)"
+                (click)="forceLogoutUser(session.user_id, session.User?.email || 'Unknown')"
                 class="btn btn-danger"
                 [disabled]="isLoading()">
                 🚪 Force Logout
@@ -455,8 +455,8 @@ export class SessionManagementComponent implements OnInit {
     }
   }
 
-  async forceLogoutUser(userId: string, userName: string) {
-    if (!confirm(`Are you sure you want to force logout ${userName}? This will end all their active sessions.`)) {
+  async forceLogoutUser(userId: string, userEmail: string) {
+    if (!confirm(`Are you sure you want to force logout ${userEmail}? This will end all their active sessions.`)) {
       return;
     }
 
@@ -465,7 +465,7 @@ export class SessionManagementComponent implements OnInit {
       const result = await this.authService.forceLogoutUser(userId);
       
       if (result.success) {
-        alert(`✅ ${userName} has been logged out successfully!`);
+        alert(`✅ ${userEmail} has been logged out successfully!`);
         await this.loadAllActiveSessions();
       } else {
         alert(`❌ Error: ${result.error}`);

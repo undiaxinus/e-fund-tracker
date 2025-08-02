@@ -334,8 +334,8 @@ export class UserDashboardComponent implements OnInit {
   private loadUserData() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      this.canEdit = user?.role === 'ENCODER' || user?.role === 'ADMIN';
-      this.roleClass = user?.role || '';
+      this.canEdit = (user?.role === 'USER' && user?.permission === 'ENCODER') || user?.role === 'ADMIN';
+      this.roleClass = user?.permission || user?.role || '';
     });
   }
 

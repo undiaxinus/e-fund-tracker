@@ -61,7 +61,9 @@ export class LoginComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
+    console.log('Login Component: onSubmit called');
     if (this.loginForm.invalid) {
+      console.log('Login Component: Form is invalid');
       this.markFormGroupTouched();
       return;
     }
@@ -70,17 +72,22 @@ export class LoginComponent implements OnInit {
     this.errorMessage.set('');
 
     const { email, password } = this.loginForm.value;
+    console.log('Login Component: Attempting login with email:', email);
 
     try {
       const result = await this.authService.signIn(email, password);
+      console.log('Login Component: Auth service result:', result);
       
       if (result.success) {
+        console.log('Login Component: Login successful, AuthService will handle navigation');
         // The AuthService will handle navigation based on user role
         // No need to navigate here as it's handled in the service
       } else {
+        console.log('Login Component: Login failed:', result.error);
         this.errorMessage.set(result.error || 'Login failed. Please try again.');
       }
     } catch (error: any) {
+      console.log('Login Component: Exception during login:', error);
       this.errorMessage.set('An unexpected error occurred. Please try again.');
       console.error('Login error:', error);
     } finally {
