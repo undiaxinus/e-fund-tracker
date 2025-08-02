@@ -42,5 +42,5 @@ testem.log
 Thumbs.db
 
 userinput.py
-/src/generated/prisma
+
 .env
