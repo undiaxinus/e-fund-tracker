@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -36,8 +36,13 @@ interface RecentTransaction {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  currentUser: any;
-  stats: DashboardStats = {
+  private authService = inject(AuthService);
+  private supabaseService = inject(SupabaseService);
+  
+  // Signals for reactive state management
+  currentUser = signal<any>(null);
+  isLoading = signal(true);
+  stats = signal<DashboardStats>({
     totalDisbursements: 0,
     totalAmount: 0,
     monthlyDisbursements: 0,
@@ -49,15 +54,9 @@ export class DashboardComponent implements OnInit {
       CO: 0,
       TR: 0
     }
-  };
-  recentTransactions: RecentTransaction[] = [];
-  isLoading = true;
+  });
+  recentTransactions = signal<RecentTransaction[]>([]);
   currentDate = new Date();
-
-  constructor(
-    private authService: AuthService,
-    private supabaseService: SupabaseService
-  ) {}
 
   ngOnInit(): void {
     this.loadUserData();
@@ -66,13 +65,13 @@ export class DashboardComponent implements OnInit {
 
   private loadUserData(): void {
     this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
+      this.currentUser.set(user);
     });
   }
 
   private async loadDashboardData(): Promise<void> {
     try {
-      this.isLoading = true;
+      this.isLoading.set(true);
       
       // Load dashboard statistics
       await this.loadStats();
@@ -83,7 +82,7 @@ export class DashboardComponent implements OnInit {
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
 
@@ -91,15 +90,18 @@ export class DashboardComponent implements OnInit {
     try {
       const dashboardData = await this.supabaseService.getDashboardStats();
       
+      const currentStats = this.stats();
+      const updatedStats = { ...currentStats };
+      
       if (dashboardData.totalDisbursements) {
-        this.stats.totalDisbursements = dashboardData.totalDisbursements.length;
-        this.stats.totalAmount = dashboardData.totalDisbursements
+        updatedStats.totalDisbursements = dashboardData.totalDisbursements.length;
+        updatedStats.totalAmount = dashboardData.totalDisbursements
           .reduce((sum: number, item: any) => sum + parseFloat(item.amount), 0);
       }
       
       if (dashboardData.monthlyDisbursements) {
-        this.stats.monthlyDisbursements = dashboardData.monthlyDisbursements.length;
-        this.stats.monthlyAmount = dashboardData.monthlyDisbursements
+        updatedStats.monthlyDisbursements = dashboardData.monthlyDisbursements.length;
+        updatedStats.monthlyAmount = dashboardData.monthlyDisbursements
           .reduce((sum: number, item: any) => sum + parseFloat(item.amount), 0);
       }
       
@@ -110,8 +112,10 @@ export class DashboardComponent implements OnInit {
             breakdown[item.classification as keyof typeof breakdown] += parseFloat(item.amount);
           }
         });
-        this.stats.classificationBreakdown = breakdown;
+        updatedStats.classificationBreakdown = breakdown;
       }
+      
+      this.stats.set(updatedStats);
       
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -129,7 +133,7 @@ export class DashboardComponent implements OnInit {
         return;
       }
       
-      this.recentTransactions = data?.slice(0, 5).map((item: any) => ({
+      const transactions = data?.slice(0, 5).map((item: any) => ({
         id: item.id,
         disbursementNo: item.disbursement_no,
         payee: item.payee,
@@ -138,6 +142,8 @@ export class DashboardComponent implements OnInit {
         disbursementDate: item.disbursement_date,
         status: item.status
       })) || [];
+      
+      this.recentTransactions.set(transactions);
       
     } catch (error) {
       console.error('Error loading recent transactions:', error);
@@ -152,18 +158,20 @@ export class DashboardComponent implements OnInit {
   }
 
   getUserDisplayName(): string {
-    if (!this.currentUser) return 'User';
-    return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+    const user = this.currentUser();
+    if (!user) return 'User';
+    return `${user.firstName} ${user.lastName}`;
   }
 
   getRoleDisplayName(): string {
-    if (!this.currentUser) return '';
+    const user = this.currentUser();
+    if (!user) return '';
     const roleMap: { [key: string]: string } = {
       'ADMIN': 'Administrator',
       'ENCODER': 'Data Encoder',
       'VIEWER': 'Viewer'
     };
-    return roleMap[this.currentUser.role] || this.currentUser.role;
+    return roleMap[user.role] || user.role;
   }
 
   formatCurrency(amount: number): string {

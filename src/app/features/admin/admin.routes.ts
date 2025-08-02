@@ -16,6 +16,10 @@ export const adminRoutes: Routes = [
         loadChildren: () => import('./manage-users/manage-users.routes').then(m => m.manageUsersRoutes)
       },
       {
+        path: 'users',
+        loadChildren: () => import('./manage-users/manage-users.routes').then(m => m.manageUsersRoutes)
+      },
+      {
         path: 'manage-roles',
         loadChildren: () => import('./manage-roles/manage-roles.routes').then(m => m.manageRolesRoutes)
       },
