@@ -1,0 +1,202 @@
+<div class="form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Edit' : 'New' }} Disbursement Entry</h1>
+    <button class="btn btn-secondary" (click)="goBack()">
+      ← Back to List
+    </button>
+  </div>
+
+  <form [formGroup]="disbursementForm" (ngSubmit)="onSubmit()" class="disbursement-form">
+    <div class="form-grid">
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <h2>Basic Information</h2>
+        
+        <div class="form-group">
+          <label for="payee">Payee *</label>
+          <input 
+            id="payee"
+            type="text" 
+            formControlName="payee"
+            placeholder="Enter payee name"
+            [class.error]="isFieldInvalid('payee')"
+          >
+          <div *ngIf="isFieldInvalid('payee')" class="error-message">
+            Payee is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="amount">Amount *</label>
+          <div class="input-with-prefix">
+            <span class="prefix">₱</span>
+            <input 
+              id="amount"
+              type="number" 
+              formControlName="amount"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              [class.error]="isFieldInvalid('amount')"
+            >
+          </div>
+          <div *ngIf="isFieldInvalid('amount')" class="error-message">
+            <span *ngIf="disbursementForm.get('amount')?.errors?.['required']">Amount is required</span>
+            <span *ngIf="disbursementForm.get('amount')?.errors?.['min']">Amount must be greater than 0</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date *</label>
+          <input 
+            id="date"
+            type="date" 
+            formControlName="date"
+            [class.error]="isFieldInvalid('date')"
+          >
+          <div *ngIf="isFieldInvalid('date')" class="error-message">
+            Date is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="referenceNumber">Reference Number</label>
+          <input 
+            id="referenceNumber"
+            type="text" 
+            formControlName="referenceNumber"
+            placeholder="Enter reference number"
+          >
+        </div>
+      </div>
+
+      <!-- Classification Section -->
+      <div class="form-section">
+        <h2>Classification & Source</h2>
+        
+        <div class="form-group">
+          <label for="classification">Classification *</label>
+          <select 
+            id="classification"
+            formControlName="classification"
+            [class.error]="isFieldInvalid('classification')"
+          >
+            <option value="">Select Classification</option>
+            <option value="PS">PS - Personal Services</option>
+            <option value="MOOE">MOOE - Maintenance and Other Operating Expenses</option>
+            <option value="CO">CO - Capital Outlay</option>
+            <option value="TR">TR - Trust Receipts</option>
+          </select>
+          <div *ngIf="isFieldInvalid('classification')" class="error-message">
+            Classification is required
+          </div>
+          
+          <!-- Classification Info -->
+          <div *ngIf="disbursementForm.get('classification')?.value" class="classification-info">
+            <div class="info-card" [ngClass]="disbursementForm.get('classification')?.value">
+              <h4>{{ getClassificationTitle() }}</h4>
+              <p>{{ getClassificationDescription() }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="fundSource">Fund Source *</label>
+          <select 
+            id="fundSource"
+            formControlName="fundSource"
+            [class.error]="isFieldInvalid('fundSource')"
+          >
+            <option value="">Select Fund Source</option>
+            <option value="General Fund">General Fund</option>
+            <option value="Special Education Fund">Special Education Fund</option>
+            <option value="Infrastructure Fund">Infrastructure Fund</option>
+            <option value="Payroll Fund">Payroll Fund</option>
+            <option value="Trust Fund">Trust Fund</option>
+            <option value="Development Fund">Development Fund</option>
+          </select>
+          <div *ngIf="isFieldInvalid('fundSource')" class="error-message">
+            Fund source is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="department">Department *</label>
+          <select 
+            id="department"
+            formControlName="department"
+            [class.error]="isFieldInvalid('department')"
+          >
+            <option value="">Select Department</option>
+            <option value="Finance">Finance Department</option>
+            <option value="HR">Human Resources</option>
+            <option value="IT">Information Technology</option>
+            <option value="Operations">Operations</option>
+            <option value="Procurement">Procurement</option>
+            <option value="Legal">Legal Affairs</option>
+            <option value="Planning">Planning & Development</option>
+          </select>
+          <div *ngIf="isFieldInvalid('department')" class="error-message">
+            Department is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description Section -->
+    <div class="form-section full-width">
+      <h2>Description</h2>
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <textarea 
+          id="description"
+          formControlName="description"
+          rows="4"
+          placeholder="Enter detailed description of the disbursement..."
+          [class.error]="isFieldInvalid('description')"
+        ></textarea>
+        <div *ngIf="isFieldInvalid('description')" class="error-message">
+          Description is required
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">
+        Cancel
+      </button>
+      <button 
+        type="submit" 
+        class="btn btn-primary"
+        [disabled]="disbursementForm.invalid || isSubmitting"
+      >
+        <span *ngIf="isSubmitting" class="spinner">⏳</span>
+        {{ isEditMode ? 'Update' : 'Create' }} Entry
+      </button>
+    </div>
+  </form>
+
+  <!-- Summary Card -->
+  <div class="summary-card" *ngIf="disbursementForm.valid">
+    <h3>Entry Summary</h3>
+    <div class="summary-item">
+      <span class="label">Payee:</span>
+      <span class="value">{{ disbursementForm.get('payee')?.value }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="label">Amount:</span>
+      <span class="value amount">₱{{ disbursementForm.get('amount')?.value | number:'1.2-2' }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="label">Classification:</span>
+      <span class="value classification" [ngClass]="disbursementForm.get('classification')?.value">
+        {{ disbursementForm.get('classification')?.value }}
+      </span>
+    </div>
+    <div class="summary-item">
+      <span class="label">Fund Source:</span>
+      <span class="value">{{ disbursementForm.get('fundSource')?.value }}</span>
+    </div>
+  </div>
+</div>

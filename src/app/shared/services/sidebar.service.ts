@@ -34,8 +34,14 @@ export class SidebarService {
     {
       label: 'Dashboard',
       icon: 'M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z',
-      route: '/dashboard',
-      roles: ['ADMIN', 'ENCODER', 'VIEWER', 'USER']
+      route: '/user/dashboard',
+      roles: ['ENCODER', 'VIEWER', 'USER']
+    },
+    {
+      label: 'Dashboard',
+      icon: 'M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z',
+      route: '/admin/dashboard',
+      roles: ['ADMIN']
     },
     
     // Admin-specific items - Core Management
@@ -92,43 +98,43 @@ export class SidebarService {
     {
       label: 'New Fund Disbursement',
       icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6',
-      route: '/disbursements/new',
+      route: '/user/entries/new',
       roles: ['ENCODER', 'USER']
     },
     {
       label: 'Fund Disbursements',
       icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-      route: '/disbursements',
+      route: '/user/entries',
       roles: ['ENCODER', 'VIEWER', 'USER']
     },
     {
       label: 'My Fund Entries',
       icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-      route: '/disbursements/my-entries',
+      route: '/user/my-entries',
       roles: ['ENCODER', 'USER']
     },
     {
       label: 'Search & Filter Funds',
       icon: 'M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-      route: '/disbursements/search',
+      route: '/user/search',
       roles: ['ENCODER', 'VIEWER', 'USER']
     },
     {
       label: 'Classify Fund Type',
       icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z',
-      route: '/disbursements/classify',
+      route: '/user/classify',
       roles: ['ENCODER', 'USER']
     },
     {
       label: 'Fund Reports',
       icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-      route: '/reports',
+      route: '/user/reports',
       roles: ['ENCODER', 'VIEWER', 'USER']
     },
     {
       label: 'Archived Funds',
       icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4',
-      route: '/disbursements/archived',
+      route: '/user/archived',
       roles: ['ENCODER', 'VIEWER', 'USER']
     }
   ];

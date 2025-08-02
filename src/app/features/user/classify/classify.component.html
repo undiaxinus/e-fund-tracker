@@ -1,0 +1,321 @@
+<div class="classify-container">
+  <div class="classify-header">
+    <h1>Classify Fund Type</h1>
+    <div class="header-actions">
+      <button 
+        *ngIf="canEdit" 
+        class="btn btn-secondary" 
+        (click)="showAddRuleForm()"
+      >
+        <span class="icon">⚙️</span>
+        Manage Rules
+      </button>
+      <button 
+        *ngIf="canEdit && classificationStats.unclassified > 0" 
+        class="btn btn-primary" 
+        (click)="autoClassifyAll()"
+        [disabled]="isAutoClassifying"
+      >
+        <span class="icon" *ngIf="!isAutoClassifying">🤖</span>
+        <span class="icon" *ngIf="isAutoClassifying">⏳</span>
+        {{ isAutoClassifying ? 'Auto-Classifying...' : 'Auto-Classify All' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Classification Guide -->
+  <div class="classification-guide">
+    <h2>Classification Types</h2>
+    <div class="classification-types">
+      <div *ngFor="let type of classifications" class="classification-type" [style.border-left-color]="type.color">
+        <div class="type-header">
+          <span class="type-code" [style.background-color]="type.color">{{ type.code }}</span>
+          <h3>{{ type.name }}</h3>
+        </div>
+        <p class="type-description">{{ type.description }}</p>
+        <div class="type-examples">
+          <strong>Examples:</strong>
+          <span *ngFor="let example of type.examples; let last = last">
+            {{ example }}<span *ngIf="!last">, </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics -->
+  <div class="statistics-section">
+    <h2>Classification Statistics</h2>
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <h3>{{ classificationStats.total }}</h3>
+          <p>Total Entries</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <h3>{{ classificationStats.classified }}</h3>
+          <p>Classified</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-content">
+          <h3>{{ classificationStats.unclassified }}</h3>
+          <p>Unclassified</p>
+        </div>
+      </div>
+      <div class="stat-card" *ngFor="let type of classifications">
+        <div class="stat-icon" [style.color]="type.color">{{ type.code }}</div>
+        <div class="stat-content">
+          <h3>{{ classificationStats.byType[type.code] || 0 }}</h3>
+          <p>{{ type.code }} Entries</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entries to Classify -->
+  <div class="entries-section">
+    <h2>Entries to Classify</h2>
+    
+    <div class="entries-list">
+      <div *ngFor="let entry of entriesToClassify" class="entry-card" [class.selected]="selectedEntry?.id === entry.id">
+        <div class="entry-header">
+          <div class="entry-info">
+            <h3>{{ entry.payee }}</h3>
+            <p class="entry-amount">₱{{ entry.amount | number:'1.2-2' }}</p>
+          </div>
+          <div class="entry-status">
+            <span *ngIf="entry.currentClassification" class="classification-badge" [ngClass]="entry.currentClassification">
+              {{ entry.currentClassification }}
+            </span>
+            <span *ngIf="!entry.currentClassification" class="status-badge unclassified">
+              Unclassified
+            </span>
+          </div>
+        </div>
+        
+        <div class="entry-details">
+          <p><strong>Description:</strong> {{ entry.description }}</p>
+          <p><strong>Department:</strong> {{ entry.department }}</p>
+          <p><strong>Fund Source:</strong> {{ entry.fundSource }}</p>
+        </div>
+        
+        <div class="entry-suggestion" *ngIf="entry.suggestedClassification && !entry.currentClassification">
+          <div class="suggestion-header">
+            <span class="suggestion-label">AI Suggestion:</span>
+            <span class="confidence-badge" [style.background-color]="getConfidenceColor(entry.suggestedClassification.confidence)">
+              {{ getConfidenceText(entry.suggestedClassification.confidence) }} ({{ entry.suggestedClassification.confidence }}%)
+            </span>
+          </div>
+          <div class="suggestion-content">
+            <span class="suggested-classification" [ngClass]="entry.suggestedClassification.classification">
+              {{ entry.suggestedClassification.classification }}
+            </span>
+            <span class="suggestion-reason">{{ entry.suggestedClassification.reason }}</span>
+          </div>
+        </div>
+        
+        <div class="entry-actions">
+          <button 
+            *ngIf="!entry.currentClassification" 
+            class="btn btn-outline" 
+            (click)="selectEntry(entry)"
+          >
+            Manual Classify
+          </button>
+          <button 
+            *ngIf="!entry.currentClassification && entry.suggestedClassification && entry.suggestedClassification.confidence >= 60" 
+            class="btn btn-primary" 
+            (click)="applySuggestion(entry)"
+          >
+            Apply Suggestion
+          </button>
+          <button 
+            *ngIf="entry.currentClassification && canEdit" 
+            class="btn btn-secondary" 
+            (click)="selectEntry(entry)"
+          >
+            Reclassify
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Classification Modal -->
+  <div class="modal-overlay" *ngIf="selectedEntry" (click)="selectedEntry = null">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Classify Entry: {{ selectedEntry.payee }}</h3>
+        <button class="modal-close" (click)="selectedEntry = null">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="entry-summary">
+          <p><strong>Amount:</strong> ₱{{ selectedEntry.amount | number:'1.2-2' }}</p>
+          <p><strong>Description:</strong> {{ selectedEntry.description }}</p>
+          <p><strong>Department:</strong> {{ selectedEntry.department }}</p>
+        </div>
+        
+        <div class="classification-form">
+          <div class="form-group">
+            <label for="classification">Classification:</label>
+            <select id="classification" [(ngModel)]="manualClassification.classification">
+              <option value="">Select Classification</option>
+              <option *ngFor="let type of classifications" [value]="type.code">
+                {{ type.code }} - {{ type.name }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="reason">Reason:</label>
+            <textarea 
+              id="reason" 
+              [(ngModel)]="manualClassification.reason"
+              placeholder="Explain why this classification was chosen..."
+              rows="3"
+            ></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="confidence">Confidence Level:</label>
+            <input 
+              type="range" 
+              id="confidence" 
+              [(ngModel)]="manualClassification.confidence"
+              min="1" 
+              max="100" 
+              step="1"
+            >
+            <span class="confidence-display">{{ manualClassification.confidence }}%</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="selectedEntry = null">Cancel</button>
+        <button 
+          class="btn btn-primary" 
+          (click)="applyClassification()"
+          [disabled]="!manualClassification.classification"
+        >
+          Apply Classification
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rule Management Modal -->
+  <div class="modal-overlay" *ngIf="showRuleForm" (click)="showRuleForm = false">
+    <div class="modal-content large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Manage Classification Rules</h3>
+        <button class="modal-close" (click)="showRuleForm = false">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Add New Rule Form -->
+        <div class="rule-form">
+          <h4>Add New Rule</h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="ruleName">Rule Name:</label>
+              <input 
+                type="text" 
+                id="ruleName" 
+                [(ngModel)]="newRule.name"
+                placeholder="Enter rule name"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="ruleClassification">Classification:</label>
+              <select id="ruleClassification" [(ngModel)]="newRule.classification">
+                <option value="">Select Classification</option>
+                <option *ngFor="let type of classifications" [value]="type.code">
+                  {{ type.code }} - {{ type.name }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="form-group full-width">
+              <label for="ruleDescription">Description:</label>
+              <textarea 
+                id="ruleDescription" 
+                [(ngModel)]="newRule.description"
+                placeholder="Describe when this rule should apply"
+                rows="2"
+              ></textarea>
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Keywords:</label>
+              <div class="keyword-input">
+                <input 
+                  type="text" 
+                  [(ngModel)]="keywordInput"
+                  placeholder="Enter keyword and press Enter"
+                  (keyup.enter)="addKeyword()"
+                >
+                <button type="button" class="btn btn-sm btn-primary" (click)="addKeyword()">Add</button>
+              </div>
+              <div class="keywords-list">
+                <span *ngFor="let keyword of newRule.keywords" class="keyword-tag">
+                  {{ keyword }}
+                  <button type="button" (click)="removeKeyword(keyword)">×</button>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button 
+              class="btn btn-primary" 
+              (click)="saveRule()"
+              [disabled]="!newRule.name || !newRule.classification"
+            >
+              Save Rule
+            </button>
+          </div>
+        </div>
+        
+        <!-- Existing Rules List -->
+        <div class="rules-list">
+          <h4>Existing Rules</h4>
+          <div class="rule-item" *ngFor="let rule of classificationRules">
+            <div class="rule-header">
+              <div class="rule-info">
+                <h5>{{ rule.name }}</h5>
+                <span class="rule-classification" [ngClass]="rule.classification">{{ rule.classification }}</span>
+              </div>
+              <div class="rule-actions">
+                <button 
+                  class="btn btn-sm" 
+                  [class.btn-success]="rule.isActive" 
+                  [class.btn-outline]="!rule.isActive"
+                  (click)="toggleRule(rule)"
+                >
+                  {{ rule.isActive ? 'Active' : 'Inactive' }}
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteRule(rule)">Delete</button>
+              </div>
+            </div>
+            <p class="rule-description">{{ rule.description }}</p>
+            <div class="rule-keywords">
+              <strong>Keywords:</strong>
+              <span *ngFor="let keyword of rule.keywords; let last = last">
+                {{ keyword }}<span *ngIf="!last">, </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

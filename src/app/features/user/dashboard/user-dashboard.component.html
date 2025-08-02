@@ -1,0 +1,78 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>eTracker Dashboard</h1>
+    <p class="welcome-text">Welcome back, {{ currentUser?.email }}</p>
+    <div class="role-badge" [ngClass]="roleClass">{{ currentUser?.role }}</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <h3>{{ totalDisbursements }}</h3>
+        <p>Total Disbursements</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-content">
+        <h3>₱{{ totalAmount | number:'1.2-2' }}</h3>
+        <p>Total Amount</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-content">
+        <h3>{{ thisMonthCount }}</h3>
+        <p>This Month</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-content">
+        <h3>{{ pendingCount }}</h3>
+        <p>Pending Review</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="action-buttons">
+      <button 
+        *ngIf="canEdit" 
+        class="action-btn primary" 
+        routerLink="/user/entries/new"
+      >
+        <span class="btn-icon">➕</span>
+        New Disbursement
+      </button>
+      
+      <button class="action-btn secondary" routerLink="/user/entries">
+        <span class="btn-icon">📋</span>
+        View All Entries
+      </button>
+      
+      <button class="action-btn secondary" routerLink="/user/reports">
+        <span class="btn-icon">📊</span>
+        Generate Reports
+      </button>
+    </div>
+  </div>
+
+  <div class="recent-activity">
+    <h2>Recent Activity</h2>
+    <div class="activity-list">
+      <div *ngFor="let activity of recentActivities" class="activity-item">
+        <div class="activity-icon" [ngClass]="activity.type">{{ activity.icon }}</div>
+        <div class="activity-content">
+          <p class="activity-description">{{ activity.description }}</p>
+          <span class="activity-time">{{ activity.timestamp | date:'short' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,167 @@
+<div class="disbursement-list-container">
+  <div class="header">
+    <h1>Disbursement Entries</h1>
+    <button 
+      *ngIf="canEdit" 
+      class="btn btn-primary" 
+      routerLink="/user/entries/new"
+    >
+      <span class="icon">➕</span>
+      New Entry
+    </button>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="search">Search:</label>
+      <input 
+        id="search" 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="applyFilters()"
+        placeholder="Search by payee or description..."
+      >
+    </div>
+
+    <div class="filter-group">
+      <label for="classification">Classification:</label>
+      <select 
+        id="classification" 
+        [(ngModel)]="selectedClassification" 
+        (change)="applyFilters()"
+      >
+        <option value="">All Classifications</option>
+        <option value="PS">PS - Personal Services</option>
+        <option value="MOOE">MOOE - Maintenance & Operating Expenses</option>
+        <option value="CO">CO - Capital Outlay</option>
+        <option value="TR">TR - Trust Receipts</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="status">Status:</label>
+      <select 
+        id="status" 
+        [(ngModel)]="selectedStatus" 
+        (change)="applyFilters()"
+      >
+        <option value="">All Statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="dateFrom">Date From:</label>
+      <input 
+        id="dateFrom" 
+        type="date" 
+        [(ngModel)]="dateFrom" 
+        (change)="applyFilters()"
+      >
+    </div>
+
+    <div class="filter-group">
+      <label for="dateTo">Date To:</label>
+      <input 
+        id="dateTo" 
+        type="date" 
+        [(ngModel)]="dateTo" 
+        (change)="applyFilters()"
+      >
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="disbursement-table">
+      <thead>
+        <tr>
+          <th (click)="sort('date')" class="sortable">
+            Date 
+            <span class="sort-icon" [ngClass]="getSortIcon('date')">↕️</span>
+          </th>
+          <th (click)="sort('payee')" class="sortable">
+            Payee 
+            <span class="sort-icon" [ngClass]="getSortIcon('payee')">↕️</span>
+          </th>
+          <th (click)="sort('amount')" class="sortable">
+            Amount 
+            <span class="sort-icon" [ngClass]="getSortIcon('amount')">↕️</span>
+          </th>
+          <th>Classification</th>
+          <th>Fund Source</th>
+          <th>Status</th>
+          <th *ngIf="canEdit">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let disbursement of filteredDisbursements" class="table-row">
+          <td>{{ disbursement.date | date:'shortDate' }}</td>
+          <td>
+            <div class="payee-cell">
+              <strong>{{ disbursement.payee }}</strong>
+              <small>{{ disbursement.description }}</small>
+            </div>
+          </td>
+          <td class="amount-cell">₱{{ disbursement.amount | number:'1.2-2' }}</td>
+          <td>
+            <span class="classification-badge" [ngClass]="disbursement.classification">
+              {{ disbursement.classification }}
+            </span>
+          </td>
+          <td>{{ disbursement.fundSource }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="disbursement.status.toLowerCase()">
+              {{ disbursement.status }}
+            </span>
+          </td>
+          <td *ngIf="canEdit" class="actions-cell">
+            <button 
+              class="btn btn-sm btn-secondary" 
+              [routerLink]="['/user/entries/edit', disbursement.id]"
+              title="Edit"
+            >
+              ✏️
+            </button>
+            <button 
+              class="btn btn-sm btn-danger" 
+              (click)="deleteDisbursement(disbursement.id)"
+              title="Delete"
+            >
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="filteredDisbursements.length === 0" class="no-data">
+      <div class="no-data-icon">📋</div>
+      <h3>No disbursements found</h3>
+      <p>Try adjusting your filters or create a new entry.</p>
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button 
+      class="btn btn-sm" 
+      [disabled]="currentPage === 1" 
+      (click)="goToPage(currentPage - 1)"
+    >
+      Previous
+    </button>
+    
+    <span class="page-info">
+      Page {{ currentPage }} of {{ totalPages }}
+    </span>
+    
+    <button 
+      class="btn btn-sm" 
+      [disabled]="currentPage === totalPages" 
+      (click)="goToPage(currentPage + 1)"
+    >
+      Next
+    </button>
+  </div>
+</div>

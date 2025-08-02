@@ -1,0 +1,212 @@
+<div class="reports-container">
+  <div class="reports-header">
+    <h1>Reports & Analytics</h1>
+    <div class="header-actions">
+      <button class="btn btn-primary" routerLink="/user/reports/export">
+        <span class="icon">📊</span>
+        Export Reports
+      </button>
+      <button 
+        *ngIf="canEdit" 
+        class="btn btn-secondary" 
+        routerLink="/user/reports/my-reports"
+      >
+        <span class="icon">📋</span>
+        My Reports
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filters-section">
+    <h2>Filter Data</h2>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="dateFrom">Date From:</label>
+        <input 
+          id="dateFrom" 
+          type="date" 
+          [(ngModel)]="dateFrom" 
+          (change)="updateReports()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="dateTo">Date To:</label>
+        <input 
+          id="dateTo" 
+          type="date" 
+          [(ngModel)]="dateTo" 
+          (change)="updateReports()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="department">Department:</label>
+        <select 
+          id="department" 
+          [(ngModel)]="selectedDepartment" 
+          (change)="updateReports()"
+        >
+          <option value="">All Departments</option>
+          <option value="Finance">Finance Department</option>
+          <option value="HR">Human Resources</option>
+          <option value="IT">Information Technology</option>
+          <option value="Operations">Operations</option>
+          <option value="Procurement">Procurement</option>
+          <option value="Legal">Legal Affairs</option>
+          <option value="Planning">Planning & Development</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="fundSource">Fund Source:</label>
+        <select 
+          id="fundSource" 
+          [(ngModel)]="selectedFundSource" 
+          (change)="updateReports()"
+        >
+          <option value="">All Fund Sources</option>
+          <option value="General Fund">General Fund</option>
+          <option value="Special Education Fund">Special Education Fund</option>
+          <option value="Infrastructure Fund">Infrastructure Fund</option>
+          <option value="Payroll Fund">Payroll Fund</option>
+          <option value="Trust Fund">Trust Fund</option>
+          <option value="Development Fund">Development Fund</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-section">
+    <h2>Summary Overview</h2>
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="card-icon">💰</div>
+        <div class="card-content">
+          <h3>₱{{ totalAmount | number:'1.2-2' }}</h3>
+          <p>Total Disbursements</p>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="card-icon">📊</div>
+        <div class="card-content">
+          <h3>{{ totalCount }}</h3>
+          <p>Total Entries</p>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="card-icon">📅</div>
+        <div class="card-content">
+          <h3>₱{{ averageAmount | number:'1.2-2' }}</h3>
+          <p>Average Amount</p>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="card-icon">📈</div>
+        <div class="card-content">
+          <h3>{{ monthlyGrowth }}%</h3>
+          <p>Monthly Growth</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Classification Breakdown -->
+  <div class="breakdown-section">
+    <h2>Classification Breakdown</h2>
+    <div class="breakdown-grid">
+      <div class="breakdown-chart">
+        <div class="chart-container">
+          <div *ngFor="let item of classificationSummary" class="chart-bar">
+            <div class="bar-container">
+              <div 
+                class="bar" 
+                [style.height.%]="item.percentage"
+                [ngClass]="item.classification"
+              ></div>
+            </div>
+            <div class="bar-label">
+              <strong>{{ item.classification }}</strong>
+              <span>{{ item.count }} entries</span>
+              <span>₱{{ item.totalAmount | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="breakdown-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Classification</th>
+              <th>Count</th>
+              <th>Amount</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of classificationSummary">
+              <td>
+                <span class="classification-badge" [ngClass]="item.classification">
+                  {{ item.classification }}
+                </span>
+              </td>
+              <td>{{ item.count }}</td>
+              <td>₱{{ item.totalAmount | number:'1.2-2' }}</td>
+              <td>{{ item.percentage.toFixed(1) }}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Trend -->
+  <div class="trend-section">
+    <h2>Monthly Trend</h2>
+    <div class="trend-chart">
+      <div class="chart-grid">
+        <div *ngFor="let data of monthlyTrend" class="trend-bar">
+          <div class="trend-container">
+            <div 
+              class="trend-fill"
+              [style.height.%]="(data.amount / maxMonthlyAmount) * 100"
+            ></div>
+          </div>
+          <div class="trend-label">
+            <strong>{{ data.month }}</strong>
+            <span>₱{{ data.amount | number:'1.0-0' }}</span>
+            <small>{{ data.count }} entries</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="activity-section">
+    <h2>Recent Activity</h2>
+    <div class="activity-list">
+      <div *ngFor="let activity of recentActivities" class="activity-item">
+        <div class="activity-icon" [ngClass]="activity.type">
+          {{ activity.icon }}
+        </div>
+        <div class="activity-content">
+          <p class="activity-description">{{ activity.description }}</p>
+          <div class="activity-meta">
+            <span class="activity-time">{{ activity.timestamp | date:'short' }}</span>
+            <span class="activity-user">by {{ activity.user }}</span>
+          </div>
+        </div>
+        <div class="activity-amount" *ngIf="activity.amount">
+          ₱{{ activity.amount | number:'1.2-2' }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

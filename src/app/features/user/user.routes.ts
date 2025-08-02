@@ -59,6 +59,38 @@ export const userRoutes: Routes = [
         ]
       },
       
+      // Search routes - accessible to both roles
+      {
+        path: 'search',
+        loadComponent: () => import('./search/search.component').then(m => m.SearchComponent),
+        canActivate: [RoleGuard],
+        data: { permissions: ['canView'] }
+      },
+      
+      // Classification routes - only for ENCODER role
+      {
+        path: 'classify',
+        loadComponent: () => import('./classify/classify.component').then(m => m.ClassifyComponent),
+        canActivate: [RoleGuard],
+        data: { permissions: ['canEdit'] } // Only ENCODER can classify entries
+      },
+      
+      // My Entries routes - only for ENCODER role
+      {
+        path: 'my-entries',
+        loadComponent: () => import('./my-entries/my-entries.component').then(m => m.MyEntriesComponent),
+        canActivate: [RoleGuard],
+        data: { permissions: ['canEdit'] } // Only ENCODER can see their own entries
+      },
+      
+      // Archived routes - accessible to both roles
+      {
+        path: 'archived',
+        loadComponent: () => import('./archived/archived.component').then(m => m.ArchivedComponent),
+        canActivate: [RoleGuard],
+        data: { permissions: ['canView'] }
+      },
+      
       // Default redirect based on role
       {
         path: '',

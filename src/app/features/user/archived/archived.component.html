@@ -1,0 +1,413 @@
+<div class="archived-container">
+  <div class="archived-header">
+    <h1>Archived Funds</h1>
+    <div class="header-actions">
+      <button 
+        class="btn btn-secondary" 
+        (click)="clearFilters()"
+        [disabled]="isLoading"
+      >
+        <span class="icon">🔄</span>
+        Clear Filters
+      </button>
+      <button 
+        *ngIf="filteredEntries.length > 0" 
+        class="btn btn-primary" 
+        (click)="exportArchive()"
+      >
+        <span class="icon">📊</span>
+        Export Archive
+      </button>
+    </div>
+  </div>
+
+  <!-- Archive Statistics -->
+  <div class="statistics-section">
+    <h2>Archive Statistics</h2>
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-content">
+          <h3>{{ archiveStats.totalArchived }}</h3>
+          <p>Total Archived</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-content">
+          <h3>{{ archiveStats.thisMonth }}</h3>
+          <p>This Month</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🗓️</div>
+        <div class="stat-content">
+          <h3>{{ archiveStats.thisYear }}</h3>
+          <p>This Year</p>
+        </div>
+      </div>
+      <div class="stat-card" *ngFor="let classification of classifications">
+        <div class="stat-icon classification-icon" [ngClass]="classification">{{ classification }}</div>
+        <div class="stat-content">
+          <h3>{{ archiveStats.byClassification[classification] || 0 }}</h3>
+          <p>{{ classification }} Entries</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="filters-section">
+    <h2>Search & Filter Archive</h2>
+    
+    <!-- Basic Search -->
+    <div class="search-basic">
+      <div class="search-input-group">
+        <input 
+          type="text" 
+          [(ngModel)]="filters.searchTerm" 
+          placeholder="Search by payee, description, ID, or archive reason..."
+          class="search-input"
+          (keyup.enter)="applyFilters()"
+        >
+        <button 
+          class="btn btn-primary search-btn" 
+          (click)="applyFilters()"
+          [disabled]="isLoading"
+        >
+          <span class="icon" *ngIf="!isLoading">🔍</span>
+          <span class="icon" *ngIf="isLoading">⏳</span>
+          {{ isLoading ? 'Searching...' : 'Search' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Advanced Filters -->
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="classification">Classification:</label>
+        <select 
+          id="classification" 
+          [(ngModel)]="filters.classification"
+          (change)="applyFilters()"
+        >
+          <option value="">All Classifications</option>
+          <option *ngFor="let classification of classifications" [value]="classification">
+            {{ classification }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="department">Department:</label>
+        <select 
+          id="department" 
+          [(ngModel)]="filters.department"
+          (change)="applyFilters()"
+        >
+          <option value="">All Departments</option>
+          <option *ngFor="let department of departments" [value]="department">
+            {{ department }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="fundSource">Fund Source:</label>
+        <select 
+          id="fundSource" 
+          [(ngModel)]="filters.fundSource"
+          (change)="applyFilters()"
+        >
+          <option value="">All Fund Sources</option>
+          <option *ngFor="let source of fundSources" [value]="source">
+            {{ source }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="archivedBy">Archived By:</label>
+        <input 
+          id="archivedBy" 
+          type="text" 
+          [(ngModel)]="filters.archivedBy"
+          placeholder="Enter username or email"
+          (change)="applyFilters()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="dateFrom">Original Date From:</label>
+        <input 
+          id="dateFrom" 
+          type="date" 
+          [(ngModel)]="filters.dateFrom"
+          (change)="applyFilters()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="dateTo">Original Date To:</label>
+        <input 
+          id="dateTo" 
+          type="date" 
+          [(ngModel)]="filters.dateTo"
+          (change)="applyFilters()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="archivedDateFrom">Archived Date From:</label>
+        <input 
+          id="archivedDateFrom" 
+          type="date" 
+          [(ngModel)]="filters.archivedDateFrom"
+          (change)="applyFilters()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="archivedDateTo">Archived Date To:</label>
+        <input 
+          id="archivedDateTo" 
+          type="date" 
+          [(ngModel)]="filters.archivedDateTo"
+          (change)="applyFilters()"
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Archive Results -->
+  <div class="results-section">
+    <div class="results-header">
+      <h2>Archived Entries</h2>
+      <div class="results-info" *ngIf="!isLoading">
+        <span class="results-count">{{ totalItems }} archived entry(ies) found</span>
+        <span class="results-showing" *ngIf="totalItems > 0">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+          {{ currentPage * itemsPerPage > totalItems ? totalItems : currentPage * itemsPerPage }} of {{ totalItems }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading archived entries...</p>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-results" *ngIf="!isLoading && filteredEntries.length === 0">
+      <div class="no-results-icon">📦</div>
+      <h3>No archived entries found</h3>
+      <p>Try adjusting your search criteria or filters.</p>
+    </div>
+
+    <!-- Results Table -->
+    <div class="results-table-container" *ngIf="!isLoading && filteredEntries.length > 0">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th (click)="sort('id')" class="sortable">
+              ID {{ getSortIcon('id') }}
+            </th>
+            <th (click)="sort('payee')" class="sortable">
+              Payee {{ getSortIcon('payee') }}
+            </th>
+            <th (click)="sort('amount')" class="sortable">
+              Amount {{ getSortIcon('amount') }}
+            </th>
+            <th (click)="sort('date')" class="sortable">
+              Original Date {{ getSortIcon('date') }}
+            </th>
+            <th (click)="sort('classification')" class="sortable">
+              Classification {{ getSortIcon('classification') }}
+            </th>
+            <th (click)="sort('status')" class="sortable">
+              Status {{ getSortIcon('status') }}
+            </th>
+            <th (click)="sort('archivedDate')" class="sortable">
+              Archived Date {{ getSortIcon('archivedDate') }}
+            </th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of paginatedEntries">
+            <td class="id-cell">{{ entry.id }}</td>
+            <td class="payee-cell">{{ entry.payee }}</td>
+            <td class="amount-cell">₱{{ entry.amount | number:'1.2-2' }}</td>
+            <td class="date-cell">{{ formatDate(entry.date) }}</td>
+            <td class="classification-cell">
+              <span class="classification-badge" [ngClass]="entry.classification">
+                {{ entry.classification }}
+              </span>
+            </td>
+            <td class="status-cell">
+              <span class="status-badge" [style.background-color]="getStatusColor(entry.status)">
+                {{ entry.status }}
+              </span>
+            </td>
+            <td class="archived-date-cell">{{ formatDate(entry.archivedDate) }}</td>
+            <td class="actions-cell">
+              <button 
+                class="btn btn-sm btn-outline" 
+                (click)="viewDetails(entry)"
+                title="View Details"
+              >
+                👁️
+              </button>
+              <button 
+                *ngIf="canRestore" 
+                class="btn btn-sm btn-success" 
+                (click)="restoreEntry(entry)"
+                title="Restore Entry"
+                [disabled]="isRestoring"
+              >
+                🔄
+              </button>
+              <button 
+                *ngIf="canRestore" 
+                class="btn btn-sm btn-danger" 
+                (click)="permanentlyDelete(entry)"
+                title="Permanently Delete"
+              >
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="!isLoading && totalPages > 1">
+      <button 
+        class="btn btn-outline" 
+        (click)="changePage(currentPage - 1)"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      
+      <span class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+      
+      <button 
+        class="btn btn-outline" 
+        (click)="changePage(currentPage + 1)"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- Entry Details Modal -->
+  <div class="modal-overlay" *ngIf="selectedEntry" (click)="selectedEntry = null">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Archived Entry Details</h3>
+        <button class="modal-close" (click)="selectedEntry = null">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="entry-details">
+          <div class="detail-section">
+            <h4>Entry Information</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>ID:</label>
+                <span>{{ selectedEntry.id }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Payee:</label>
+                <span>{{ selectedEntry.payee }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Amount:</label>
+                <span class="amount">₱{{ selectedEntry.amount | number:'1.2-2' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Original Date:</label>
+                <span>{{ formatDate(selectedEntry.date) }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Classification:</label>
+                <span class="classification-badge" [ngClass]="selectedEntry.classification">
+                  {{ selectedEntry.classification }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <label>Status:</label>
+                <span class="status-badge" [style.background-color]="getStatusColor(selectedEntry.status)">
+                  {{ selectedEntry.status }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <label>Department:</label>
+                <span>{{ selectedEntry.department }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Fund Source:</label>
+                <span>{{ selectedEntry.fundSource }}</span>
+              </div>
+            </div>
+            <div class="detail-item full-width">
+              <label>Description:</label>
+              <p>{{ selectedEntry.description }}</p>
+            </div>
+          </div>
+          
+          <div class="detail-section">
+            <h4>Archive Information</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Archived Date:</label>
+                <span>{{ formatDateTime(selectedEntry.archivedDate) }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Archived By:</label>
+                <span>{{ selectedEntry.archivedBy }}</span>
+              </div>
+            </div>
+            <div class="detail-item full-width">
+              <label>Archive Reason:</label>
+              <p>{{ selectedEntry.archivedReason }}</p>
+            </div>
+          </div>
+          
+          <div class="detail-section">
+            <h4>Original Creation</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Created By:</label>
+                <span>{{ selectedEntry.originalCreatedBy }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Created At:</label>
+                <span>{{ formatDateTime(selectedEntry.originalCreatedAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="selectedEntry = null">Close</button>
+        <button 
+          *ngIf="canRestore" 
+          class="btn btn-success" 
+          (click)="restoreEntry(selectedEntry!); selectedEntry = null"
+          [disabled]="isRestoring"
+        >
+          <span class="icon">🔄</span>
+          Restore Entry
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

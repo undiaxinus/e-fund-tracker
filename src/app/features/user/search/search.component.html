@@ -1,0 +1,273 @@
+<div class="search-container">
+  <div class="search-header">
+    <h1>Search & Filter Funds</h1>
+    <div class="header-actions">
+      <button 
+        class="btn btn-secondary" 
+        (click)="clearFilters()"
+        [disabled]="isLoading"
+      >
+        <span class="icon">🔄</span>
+        Clear Filters
+      </button>
+      <button 
+        *ngIf="hasSearched && filteredResults.length > 0" 
+        class="btn btn-primary" 
+        (click)="exportResults()"
+      >
+        <span class="icon">📊</span>
+        Export Results
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Filters Section -->
+  <div class="filters-section">
+    <h2>Search Filters</h2>
+    
+    <!-- Basic Search -->
+    <div class="search-basic">
+      <div class="search-input-group">
+        <input 
+          type="text" 
+          [(ngModel)]="filters.searchTerm" 
+          placeholder="Search by payee, description, or ID..."
+          class="search-input"
+          (keyup.enter)="performSearch()"
+        >
+        <button 
+          class="btn btn-primary search-btn" 
+          (click)="performSearch()"
+          [disabled]="isLoading"
+        >
+          <span class="icon" *ngIf="!isLoading">🔍</span>
+          <span class="icon" *ngIf="isLoading">⏳</span>
+          {{ isLoading ? 'Searching...' : 'Search' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Advanced Filters -->
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="classification">Classification:</label>
+        <select 
+          id="classification" 
+          [(ngModel)]="filters.classification"
+          (change)="hasSearched && applyFilters()"
+        >
+          <option value="">All Classifications</option>
+          <option *ngFor="let classification of classifications" [value]="classification">
+            {{ classification }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="department">Department:</label>
+        <select 
+          id="department" 
+          [(ngModel)]="filters.department"
+          (change)="hasSearched && applyFilters()"
+        >
+          <option value="">All Departments</option>
+          <option *ngFor="let department of departments" [value]="department">
+            {{ department }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="fundSource">Fund Source:</label>
+        <select 
+          id="fundSource" 
+          [(ngModel)]="filters.fundSource"
+          (change)="hasSearched && applyFilters()"
+        >
+          <option value="">All Fund Sources</option>
+          <option *ngFor="let source of fundSources" [value]="source">
+            {{ source }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="status">Status:</label>
+        <select 
+          id="status" 
+          [(ngModel)]="filters.status"
+          (change)="hasSearched && applyFilters()"
+        >
+          <option value="">All Statuses</option>
+          <option *ngFor="let status of statuses" [value]="status">
+            {{ status }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="dateFrom">Date From:</label>
+        <input 
+          id="dateFrom" 
+          type="date" 
+          [(ngModel)]="filters.dateFrom"
+          (change)="hasSearched && applyFilters()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="dateTo">Date To:</label>
+        <input 
+          id="dateTo" 
+          type="date" 
+          [(ngModel)]="filters.dateTo"
+          (change)="hasSearched && applyFilters()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="amountMin">Min Amount:</label>
+        <input 
+          id="amountMin" 
+          type="number" 
+          [(ngModel)]="filters.amountMin"
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+          (change)="hasSearched && applyFilters()"
+        >
+      </div>
+      
+      <div class="filter-group">
+        <label for="amountMax">Max Amount:</label>
+        <input 
+          id="amountMax" 
+          type="number" 
+          [(ngModel)]="filters.amountMax"
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+          (change)="hasSearched && applyFilters()"
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Results Section -->
+  <div class="results-section" *ngIf="hasSearched">
+    <div class="results-header">
+      <h2>Search Results</h2>
+      <div class="results-info" *ngIf="!isLoading">
+        <span class="results-count">{{ totalItems }} result(s) found</span>
+        <span class="results-showing" *ngIf="totalItems > 0">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+          {{ currentPage * itemsPerPage > totalItems ? totalItems : currentPage * itemsPerPage }} of {{ totalItems }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>Searching for disbursement records...</p>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-results" *ngIf="!isLoading && filteredResults.length === 0">
+      <div class="no-results-icon">🔍</div>
+      <h3>No results found</h3>
+      <p>Try adjusting your search criteria or filters.</p>
+    </div>
+
+    <!-- Results Table -->
+    <div class="results-table-container" *ngIf="!isLoading && filteredResults.length > 0">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th (click)="sort('id')" class="sortable">
+              ID {{ getSortIcon('id') }}
+            </th>
+            <th (click)="sort('payee')" class="sortable">
+              Payee {{ getSortIcon('payee') }}
+            </th>
+            <th (click)="sort('amount')" class="sortable">
+              Amount {{ getSortIcon('amount') }}
+            </th>
+            <th (click)="sort('date')" class="sortable">
+              Date {{ getSortIcon('date') }}
+            </th>
+            <th (click)="sort('classification')" class="sortable">
+              Classification {{ getSortIcon('classification') }}
+            </th>
+            <th (click)="sort('department')" class="sortable">
+              Department {{ getSortIcon('department') }}
+            </th>
+            <th (click)="sort('status')" class="sortable">
+              Status {{ getSortIcon('status') }}
+            </th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of paginatedResults">
+            <td class="id-cell">{{ entry.id }}</td>
+            <td class="payee-cell">{{ entry.payee }}</td>
+            <td class="amount-cell">₱{{ entry.amount | number:'1.2-2' }}</td>
+            <td class="date-cell">{{ entry.date | date:'short' }}</td>
+            <td class="classification-cell">
+              <span class="classification-badge" [ngClass]="entry.classification">
+                {{ entry.classification }}
+              </span>
+            </td>
+            <td class="department-cell">{{ entry.department }}</td>
+            <td class="status-cell">
+              <span class="status-badge" [ngClass]="entry.status.toLowerCase()">
+                {{ entry.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button 
+                class="btn btn-sm btn-outline" 
+                (click)="viewDetails(entry)"
+                title="View Details"
+              >
+                👁️
+              </button>
+              <button 
+                *ngIf="canEdit" 
+                class="btn btn-sm btn-outline" 
+                (click)="editEntry(entry)"
+                title="Edit Entry"
+              >
+                ✏️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="!isLoading && totalPages > 1">
+      <button 
+        class="btn btn-outline" 
+        (click)="changePage(currentPage - 1)"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      
+      <span class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+      
+      <button 
+        class="btn btn-outline" 
+        (click)="changePage(currentPage + 1)"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>
