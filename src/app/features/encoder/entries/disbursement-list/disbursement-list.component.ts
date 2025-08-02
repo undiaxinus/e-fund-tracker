@@ -133,7 +133,7 @@ export class DisbursementListComponent implements OnInit {
       const { data, error } = await this.supabaseService.getDisbursements();
       
       if (error) {
-        this.error = 'Failed to load disbursements: ' + error.message;
+        this.error = 'Failed to load disbursements: ' + ((error as any)?.message || 'Unknown error');
         return;
       }
       

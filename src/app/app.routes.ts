@@ -20,6 +20,10 @@ export const routes: Routes = [
     redirectTo: '/auth/login',
     pathMatch: 'full'
   },
+  {
+    path: 'connection-test',
+    loadComponent: () => import('./shared/components/connection-test/connection-test.component').then(m => m.ConnectionTestComponent)
+  },
   // Unified layout for all authenticated users
   {
     path: '',

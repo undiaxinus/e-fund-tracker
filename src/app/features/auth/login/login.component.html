@@ -1,268 +1,110 @@
-<div class="w-full h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-0 m-0 overflow-hidden">
-  <!-- Background Elements -->
-  <div class="hidden"></div>
-  <div class="hidden">
-    <div class="hidden"></div>
-    <div class="hidden"></div>
-    <div class="hidden"></div>
-  </div>
-  
-  <div class="bg-white/95 backdrop-blur-lg rounded-2xl p-10 w-full max-w-md max-h-[90vh] shadow-2xl border border-white/20 overflow-y-auto">
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-gray-900 flex items-center justify-center p-4">
+  <div class="bg-slate-800/30 backdrop-blur-lg border border-yellow-400/30 rounded-3xl p-8 w-full max-w-md shadow-2xl">
     <div class="text-center mb-8">
-      <div class="flex items-center justify-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">E-Fund Tracker</h1>
-      </div>
-      <div>
-        <h2 class="text-xl font-semibold text-gray-900 mb-1">Welcome Back</h2>
-        <p class="text-gray-600 text-sm">Sign in to access your financial management dashboard</p>
-      </div>
+      <h1 class="text-2xl font-bold text-white mb-2">E-Fund Tracker</h1>
+      <p class="text-yellow-200 text-sm">Philippine National Police</p>
+      <p class="text-gray-300 text-sm mt-2">Secure financial disbursement tracking</p>
     </div>
 
-    <!-- Demo Users Section -->
-    <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold text-gray-700">🚀 Quick Demo Login</h3>
-        <button
-          type="button"
-          class="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
-          (click)="toggleDemoUsers()"
-        >
-          {{ showDemoUsers() ? 'Hide' : 'Show' }} Demo Users
+    <div class="mb-6 p-4 bg-white/10 rounded-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-white">Quick Demo Login</h3>
+        <button type="button" (click)="showDemoUsers.set(!showDemoUsers())" class="text-yellow-200 hover:text-yellow-100">
+          {{ showDemoUsers() ? 'Hide' : 'Show' }}
         </button>
       </div>
-      
-      <div *ngIf="showDemoUsers()" class="space-y-2">
-        <p class="text-xs text-gray-600 mb-3">Click on any demo user to login instantly:</p>
-        <div *ngFor="let demoUser of demoUsers" class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-indigo-300 transition-all duration-200 cursor-pointer"
-             (click)="quickLogin(demoUser)">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-              {{ getUserInitials(demoUser.name) }}
-            </div>
-            <div>
-              <div class="text-sm font-medium text-gray-900">{{ demoUser.name }}</div>
-              <div class="text-xs text-gray-500">{{ demoUser.email }}</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getRoleBadgeClass(demoUser.role)">
-              {{ demoUser.role }}
-            </span>
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400">
-              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
+      <div *ngIf="showDemoUsers()" class="space-y-3">
+         <div class="text-xs text-gray-300 mb-3">
+           Click any user below to login instantly, or use these credentials manually:
+         </div>
+         <div *ngFor="let demoUser of demoUsers" class="flex items-center justify-between p-3 bg-white/10 rounded-xl cursor-pointer hover:bg-white/20" (click)="quickLogin(demoUser)">
+           <div class="flex items-center gap-3">
+             <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-blue-900 font-bold">
+               {{ demoUser.name.charAt(0) }}
+             </div>
+             <div>
+               <div class="text-sm font-semibold text-white">{{ demoUser.name }}</div>
+               <div class="text-xs text-gray-300">{{ demoUser.email }}</div>
+               <div class="text-xs text-yellow-200">Password: {{ getPasswordForUser(demoUser.email) }}</div>
+             </div>
+           </div>
+           <span class="text-xs bg-yellow-400/20 text-yellow-200 px-2 py-1 rounded-full">
+             {{ demoUser.role }}
+           </span>
+         </div>
+       </div>
     </div>
 
-    <!-- Divider -->
     <div class="relative mb-6">
       <div class="absolute inset-0 flex items-center">
         <div class="w-full border-t border-gray-300"></div>
       </div>
       <div class="relative flex justify-center text-sm">
-        <span class="px-2 bg-white text-gray-500">Or sign in manually</span>
+        <span class="bg-slate-800/50 px-4 text-gray-300">Or sign in manually</span>
       </div>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mb-6">
-      <!-- Error Message -->
-      <div *ngIf="errorMessage()" class="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700 p-4 rounded-xl mb-6 flex items-center gap-3 text-sm font-medium shadow-lg">
-        <span class="text-xl">⚠️</span>
-        {{ errorMessage() }}
-      </div>
+    <div *ngIf="errorMessage()" class="bg-red-900/30 border border-red-400/50 text-red-200 p-4 rounded-2xl mb-6">
+      {{ errorMessage() }}
+    </div>
 
-      <!-- Email Field -->
-      <div class="mb-5">
-        <label for="email" class="flex items-center gap-1 mb-2 font-medium text-sm text-gray-700">
-          <span>Email Address</span>
-          <span class="text-red-500 font-semibold">*</span>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <div>
+        <label for="email" class="block text-sm font-bold text-white mb-2">
+          Email Address *
         </label>
-        <div class="relative flex items-center bg-gray-50 border-2 border-gray-200 rounded-xl transition-all duration-200" 
-             [class.border-indigo-500]="isFieldFocused('email')" 
-             [class.bg-white]="isFieldFocused('email')" 
-             [class.shadow-lg]="isFieldFocused('email')" 
-             [class.border-red-500]="isFieldInvalid('email')" 
-             [class.bg-red-50]="isFieldInvalid('email')">
-          <div class="absolute left-3.5 w-4.5 h-4.5 text-gray-400 z-10" 
-               [class.text-indigo-500]="isFieldFocused('email')" 
-               [class.text-red-500]="isFieldInvalid('email')">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <input
-            type="email"
-            id="email"
-            formControlName="email"
-            placeholder="Enter your email address"
-            autocomplete="email"
-            (focus)="onFieldFocus('email')"
-            (blur)="onFieldBlur('email')"
-            class="w-full py-3.5 px-3.5 pl-12 border-none bg-transparent text-base text-gray-900 outline-none"
-          />
-        </div>
-        <div *ngIf="isFieldInvalid('email')" class="flex items-center gap-2 mt-2 text-red-500 text-xs" role="alert">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          {{ getFieldError('email') }}
+        <input id="email" type="email" formControlName="email" placeholder="Enter your email" class="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none">
+        <div *ngIf="isFieldInvalid('email')" class="text-red-300 text-xs mt-1">
+          Please enter a valid email address
         </div>
       </div>
 
-      <!-- Password Field -->
-      <div class="mb-5">
-        <label for="password" class="flex items-center gap-1 mb-2 font-medium text-sm text-gray-700">
-          <span>Password</span>
-          <span class="text-red-500 font-semibold">*</span>
+      <div>
+        <label for="password" class="block text-sm font-bold text-white mb-2">
+          Password *
         </label>
-        <div class="relative flex items-center bg-gray-50 border-2 border-gray-200 rounded-xl transition-all duration-200" 
-             [class.border-indigo-500]="isFieldFocused('password')" 
-             [class.bg-white]="isFieldFocused('password')" 
-             [class.shadow-lg]="isFieldFocused('password')" 
-             [class.border-red-500]="isFieldInvalid('password')" 
-             [class.bg-red-50]="isFieldInvalid('password')">
-          <div class="absolute left-3.5 w-4.5 h-4.5 text-gray-400 z-10" 
-               [class.text-indigo-500]="isFieldFocused('password')" 
-               [class.text-red-500]="isFieldInvalid('password')">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="12" cy="16" r="1" fill="currentColor"/>
-              <path d="M7 11V7A5 5 0 0 1 17 7V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <input
-            [type]="showPassword() ? 'text' : 'password'"
-            id="password"
-            formControlName="password"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            (focus)="onFieldFocus('password')"
-            (blur)="onFieldBlur('password')"
-            class="w-full py-3.5 px-3.5 pl-12 border-none bg-transparent text-base text-gray-900 outline-none"
-          />
-          <button
-            type="button"
-            class="absolute right-3.5 w-9 h-9 bg-transparent border-none rounded-md cursor-pointer flex items-center justify-center text-gray-400 hover:text-indigo-500 z-10"
-            (click)="togglePasswordVisibility()"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-            tabindex="0"
-          >
-            <svg *ngIf="!showPassword()" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
-              <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <svg *ngIf="showPassword()" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12A16.16 16.16 0 0 1 6.06 6.06L17.94 17.94Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4C19 4 23 12 23 12A16.16 16.16 0 0 1 19.36 8.64L9.9 4.24Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+        <div class="relative">
+          <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" placeholder="Enter your password" class="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none pr-12">
+          <button type="button" (click)="showPassword.set(!showPassword())" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-yellow-400">
+            {{ showPassword() ? '👁️' : '👁️‍🗨️' }}
           </button>
         </div>
-        <div *ngIf="isFieldInvalid('password')" class="flex items-center gap-2 mt-2 text-red-500 text-xs" role="alert">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          {{ getFieldError('password') }}
+        <div *ngIf="isFieldInvalid('password')" class="text-red-300 text-xs mt-1">
+          Password is required
         </div>
       </div>
 
-      <!-- Remember Me & Forgot Password -->
-      <div class="flex justify-between items-center mb-6 gap-4">
-        <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-600 hover:text-gray-800 transition-colors duration-300">
-          <input type="checkbox" formControlName="rememberMe" class="absolute opacity-0 cursor-pointer" />
-          <span class="relative w-5 h-5 bg-gray-100 border-2 border-gray-300 rounded-md flex items-center justify-center transition-all duration-300">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-white opacity-0 scale-50 transition-all duration-300">
-              <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="font-medium">Remember me for 30 days</span>
+      <div class="flex justify-between items-center">
+        <label class="flex items-center gap-2 text-white text-sm">
+          <input type="checkbox" class="rounded">
+          Remember me
         </label>
-        <button
-          type="button"
-          class="bg-transparent border-none text-indigo-600 cursor-pointer text-sm font-medium no-underline p-2 rounded-md transition-all duration-300 hover:text-indigo-700 hover:bg-indigo-50"
-          (click)="onForgotPassword()"
-        >
+        <button type="button" class="text-yellow-200 hover:text-yellow-100 text-sm">
           Forgot Password?
         </button>
       </div>
 
-      <!-- Submit Button -->
-      <button
-        type="submit"
-        class="w-full py-3.5 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-none rounded-xl text-base font-semibold cursor-pointer transition-all duration-200 shadow-lg hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
-        [disabled]="!canSubmit()"
-        [class.loading]="isLoading()"
-      >
-        <div class="flex items-center justify-center gap-3 relative z-10">
-          <div *ngIf="isLoading()" class="w-5 h-5 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 animate-spin">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.416" stroke-dashoffset="31.416">
-                <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416;0 31.416" repeatCount="indefinite"/>
-                <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416;-31.416" repeatCount="indefinite"/>
-              </circle>
-            </svg>
-          </div>
-          <div *ngIf="!isLoading()" class="w-5 h-5 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 3H19A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="10,17 15,12 10,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="15" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <span class="font-semibold tracking-wide">
-            {{ isLoading() ? 'Signing In...' : 'Sign In to Dashboard' }}
-          </span>
-        </div>
+      <button type="submit" [disabled]="isLoading()" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 cursor-pointer">
+        <span *ngIf="isLoading()">Signing In...</span>
+        <span *ngIf="!isLoading()">Access E-Fund Tracker</span>
       </button>
     </form>
 
-    <!-- Footer -->
-    <div class="text-center mt-4">
-      <div class="flex flex-col gap-4">
-        <div>
-          <h3 class="text-gray-700 text-sm font-semibold mb-1">Government Financial Management System</h3>
-          <p class="text-gray-500 text-xs m-0">Secure, reliable, and compliant financial tracking</p>
+    <div class="text-center mt-6">
+      <div class="space-y-2">
+        <h3 class="text-yellow-200 text-sm font-bold">Philippine National Police</h3>
+        <p class="text-gray-300 text-xs">Electronic Fund Disbursement Tracking System</p>
+        <p class="text-gray-400 text-xs">Republic of the Philippines</p>
+      </div>
+      <div class="flex justify-center gap-2 mt-4 flex-wrap">
+        <div class="text-white text-xs py-1 px-2 bg-white/10 rounded-lg">
+          🔒 Secure
         </div>
-        <div class="flex justify-center gap-4 flex-wrap">
-          <div class="flex items-center gap-1.5 text-gray-500 text-xs font-medium py-1.5 px-2.5 bg-gray-100 rounded-md">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3">
-              <path d="M12 22S8 18 8 12V7L12 5L16 7V12C16 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>SSL Encrypted</span>
-          </div>
-          <div class="flex items-center gap-1.5 text-gray-500 text-xs font-medium py-1.5 px-2.5 bg-gray-100 rounded-md">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="12" cy="16" r="1" fill="currentColor"/>
-              <path d="M7 11V7A5 5 0 0 1 17 7V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Secure Access</span>
-          </div>
-          <div class="flex items-center gap-1.5 text-gray-500 text-xs font-medium py-1.5 px-2.5 bg-gray-100 rounded-md">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3">
-              <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Audit Ready</span>
-          </div>
+        <div class="text-white text-xs py-1 px-2 bg-white/10 rounded-lg">
+          👥 Role-Based
+        </div>
+        <div class="text-white text-xs py-1 px-2 bg-white/10 rounded-lg">
+          📊 Audit Ready
         </div>
       </div>
     </div>

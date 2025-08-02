@@ -114,10 +114,15 @@ export class LoginComponent implements OnInit {
   private getPasswordForDemoUser(email: string): string {
     const passwordMap: { [key: string]: string } = {
       'admin@efund.gov': 'password123',
+      'admin2@efund.gov.ph': 'admin123456',
       'test@example.com': 'demo123',
       'user@test.com': '123456'
     };
     return passwordMap[email] || '';
+  }
+
+  getPasswordForUser(email: string): string {
+    return this.getPasswordForDemoUser(email);
   }
 
   togglePasswordVisibility(): void {

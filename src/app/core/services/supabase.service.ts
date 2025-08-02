@@ -11,9 +11,75 @@ export class SupabaseService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
+  // Mock data for demo purposes
+  private mockDisbursements = [
+    {
+      id: '1',
+      disbursement_no: 'DSB-2024-0001',
+      payee: 'ABC Construction Corp.',
+      amount: 150000.00,
+      disbursement_date: '2024-01-15',
+      description: 'Construction materials for building renovation',
+      fund_source: 'General Fund',
+      classification: 'CO',
+      sub_classification: 'Infrastructure',
+      department: 'Engineering',
+      check_no: 'CHK-001',
+      voucher_no: 'VCH-001',
+      remarks: 'Approved by department head',
+      status: 'ACTIVE',
+      is_archived: false,
+      created_at: '2024-01-15T08:00:00Z',
+      updated_at: '2024-01-15T08:00:00Z',
+      created_by: { first_name: 'John', last_name: 'Doe' },
+      updated_by: { first_name: 'John', last_name: 'Doe' }
+    },
+    {
+      id: '2',
+      disbursement_no: 'DSB-2024-0002',
+      payee: 'Office Supplies Inc.',
+      amount: 25000.00,
+      disbursement_date: '2024-01-16',
+      description: 'Office supplies and equipment',
+      fund_source: 'Operating Fund',
+      classification: 'MOOE',
+      sub_classification: 'Office Supplies',
+      department: 'Administration',
+      check_no: 'CHK-002',
+      voucher_no: 'VCH-002',
+      remarks: 'Monthly office supplies',
+      status: 'ACTIVE',
+      is_archived: false,
+      created_at: '2024-01-16T09:00:00Z',
+      updated_at: '2024-01-16T09:00:00Z',
+      created_by: { first_name: 'Jane', last_name: 'Smith' },
+      updated_by: { first_name: 'Jane', last_name: 'Smith' }
+    },
+    {
+      id: '3',
+      disbursement_no: 'DSB-2024-0003',
+      payee: 'John A. Dela Cruz',
+      amount: 45000.00,
+      disbursement_date: '2024-01-17',
+      description: 'Salary payment for January 2024',
+      fund_source: 'Personnel Fund',
+      classification: 'PS',
+      sub_classification: 'Regular Salary',
+      department: 'Finance',
+      check_no: 'CHK-003',
+      voucher_no: 'VCH-003',
+      remarks: 'Regular monthly salary',
+      status: 'ACTIVE',
+      is_archived: false,
+      created_at: '2024-01-17T10:00:00Z',
+      updated_at: '2024-01-17T10:00:00Z',
+      created_by: { first_name: 'Admin', last_name: 'User' },
+      updated_by: { first_name: 'Admin', last_name: 'User' }
+    }
+  ];
+
   constructor() {
-    // Temporarily disable Supabase for demo purposes
-    // TODO: Replace with actual Supabase URL and key
+    // Initialize Supabase client
     if (environment.supabaseUrl !== 'YOUR_SUPABASE_URL' && environment.supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY') {
       this.supabase = createClient(
         environment.supabaseUrl,
@@ -24,9 +90,10 @@ export class SupabaseService {
       this.supabase.auth.onAuthStateChange((event, session) => {
         this.currentUserSubject.next(session?.user ?? null);
       });
+      
+      console.log('Supabase client initialized successfully');
     } else {
-      // Mock Supabase client for demo
-      console.warn('Supabase not configured - using mock client for demo');
+      console.warn('Supabase not configured - please update environment variables');
     }
   }
 
@@ -40,6 +107,10 @@ export class SupabaseService {
 
   // Authentication methods
   async signIn(email: string, password: string) {
+    if (!this.supabase) {
+      return { data: null, error: { message: 'Supabase not configured' } };
+    }
+    
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email,
       password
@@ -48,6 +119,10 @@ export class SupabaseService {
   }
 
   async signUp(email: string, password: string, userData: any) {
+    if (!this.supabase) {
+      return { data: null, error: { message: 'Supabase not configured' } };
+    }
+    
     const { data, error } = await this.supabase.auth.signUp({
       email,
       password,
@@ -59,11 +134,19 @@ export class SupabaseService {
   }
 
   async signOut() {
+    if (!this.supabase) {
+      return { error: { message: 'Supabase not configured' } };
+    }
+    
     const { error } = await this.supabase.auth.signOut();
     return { error };
   }
 
   async resetPassword(email: string) {
+    if (!this.supabase) {
+      return { data: null, error: { message: 'Supabase not configured' } };
+    }
+    
     const { data, error } = await this.supabase.auth.resetPasswordForEmail(email);
     return { data, error };
   }
@@ -115,6 +198,35 @@ export class SupabaseService {
 
   // Database operations for Disbursements
   async getDisbursements(filters?: any) {
+    if (!this.supabase) {
+      // Fallback to mock data if Supabase not configured
+      let filteredData = [...this.mockDisbursements];
+      
+      if (filters) {
+        if (filters.classification) {
+          filteredData = filteredData.filter(d => d.classification === filters.classification);
+        }
+        if (filters.department) {
+          filteredData = filteredData.filter(d => d.department === filters.department);
+        }
+        if (filters.dateFrom) {
+          filteredData = filteredData.filter(d => d.disbursement_date >= filters.dateFrom);
+        }
+        if (filters.dateTo) {
+          filteredData = filteredData.filter(d => d.disbursement_date <= filters.dateTo);
+        }
+        if (filters.status) {
+          filteredData = filteredData.filter(d => d.status === filters.status);
+        }
+        if (filters.limit) {
+          filteredData = filteredData.slice(0, filters.limit);
+        }
+      }
+      
+      filteredData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      return { data: filteredData, error: null };
+    }
+    
     let query = this.supabase
       .from('disbursements')
       .select(`
@@ -139,6 +251,9 @@ export class SupabaseService {
       }
       if (filters.status) {
         query = query.eq('status', filters.status);
+      }
+      if (filters.limit) {
+        query = query.limit(filters.limit);
       }
     }
 
@@ -240,6 +355,34 @@ export class SupabaseService {
 
   // Dashboard statistics
   async getDashboardStats() {
+    if (!this.supabase) {
+      // Fallback to mock data if Supabase not configured
+      const activeDisbursements = this.mockDisbursements.filter(d => d.status === 'ACTIVE');
+      
+      const totalDisbursements = activeDisbursements.map(d => ({ amount: d.amount }));
+      
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const monthlyDisbursements = activeDisbursements
+        .filter(d => {
+          const disbursementDate = new Date(d.disbursement_date);
+          return disbursementDate.getMonth() === currentMonth && disbursementDate.getFullYear() === currentYear;
+        })
+        .map(d => ({ amount: d.amount }));
+      
+      const classificationStats = activeDisbursements.map(d => ({
+        classification: d.classification,
+        amount: d.amount
+      }));
+      
+      return {
+        totalDisbursements,
+        monthlyDisbursements,
+        classificationStats,
+        errors: { totalError: null, monthlyError: null, classError: null }
+      };
+    }
+    
     const { data: totalDisbursements, error: totalError } = await this.supabase
       .from('disbursements')
       .select('amount', { count: 'exact' })
