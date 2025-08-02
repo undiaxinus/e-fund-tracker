@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  supabaseUrl: 'YOUR_PRODUCTION_SUPABASE_URL',
-  supabaseAnonKey: 'YOUR_PRODUCTION_SUPABASE_ANON_KEY',
+  supabaseUrl: 'https://xyzcompany.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5emNvbXBhbnkiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MjU0ODAwMCwiZXhwIjoxOTU4MTI0MDAwfQ.demo-key-for-development',
   apiUrl: 'https://your-api-domain.com/api',
   appName: 'E-Fund Tracker',
   appVersion: '1.0.0',
