@@ -1,0 +1,618 @@
+<div class="settings-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <h1 class="page-title">System Settings</h1>
+      <p class="page-subtitle">Configure system preferences, security, and operational parameters</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        class="btn btn-outline"
+        (click)="loadSettings()"
+        [disabled]="isLoading()">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <h3>Loading Settings...</h3>
+      <p>Please wait while we fetch the system configuration.</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3>Error Loading Settings</h3>
+      <p>{{ error() }}</p>
+      <button class="btn btn-primary" (click)="loadSettings()">Try Again</button>
+    </div>
+  } @else {
+    <!-- Settings Content -->
+    <div class="settings-content">
+      <!-- Navigation Tabs -->
+      <div class="settings-nav">
+        <button 
+          class="nav-tab"
+          [class.active]="activeTab() === 'general'"
+          (click)="setActiveTab('general')">
+          <svg class="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          General
+        </button>
+        <button 
+          class="nav-tab"
+          [class.active]="activeTab() === 'security'"
+          (click)="setActiveTab('security')">
+          <svg class="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          Security
+        </button>
+        <button 
+          class="nav-tab"
+          [class.active]="activeTab() === 'notifications'"
+          (click)="setActiveTab('notifications')">
+          <svg class="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4.868 19.462A17.173 17.173 0 003 12c0-9.941 8.059-18 18-18s18 8.059 18 18-8.059 18-18 18c-2.508 0-4.893-.518-7.077-1.462L4.868 19.462z"></path>
+          </svg>
+          Notifications
+        </button>
+        <button 
+          class="nav-tab"
+          [class.active]="activeTab() === 'dataRetention'"
+          (click)="setActiveTab('dataRetention')">
+          <svg class="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+          </svg>
+          Data Retention
+        </button>
+        <button 
+          class="nav-tab"
+          [class.active]="activeTab() === 'backup'"
+          (click)="setActiveTab('backup')">
+          <svg class="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+          </svg>
+          Backup
+        </button>
+      </div>
+
+      <!-- Messages -->
+      @if (successMessage()) {
+        <div class="alert alert-success">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          {{ successMessage() }}
+        </div>
+      }
+
+      @if (error()) {
+        <div class="alert alert-error">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          {{ error() }}
+        </div>
+      }
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- General Settings -->
+        @if (activeTab() === 'general') {
+          <div class="settings-section">
+            <div class="section-header">
+              <h2 class="section-title">General Settings</h2>
+              <p class="section-description">Configure basic system information and preferences</p>
+            </div>
+
+            <form [formGroup]="generalForm" class="settings-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">System Name</label>
+                  <input 
+                    type="text" 
+                    class="form-input"
+                    formControlName="systemName"
+                    placeholder="Enter system name">
+                  @if (generalForm.get('systemName')?.invalid && generalForm.get('systemName')?.touched) {
+                    <span class="form-error">System name is required</span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Organization Name</label>
+                  <input 
+                    type="text" 
+                    class="form-input"
+                    formControlName="organizationName"
+                    placeholder="Enter organization name">
+                  @if (generalForm.get('organizationName')?.invalid && generalForm.get('organizationName')?.touched) {
+                    <span class="form-error">Organization name is required</span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Timezone</label>
+                  <select class="form-select" formControlName="timezone">
+                    <option value="Asia/Manila">Asia/Manila (GMT+8)</option>
+                    <option value="UTC">UTC (GMT+0)</option>
+                    <option value="America/New_York">America/New_York (GMT-5)</option>
+                    <option value="Europe/London">Europe/London (GMT+0)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Date Format</label>
+                  <select class="form-select" formControlName="dateFormat">
+                    <option value="MM/dd/yyyy">MM/dd/yyyy</option>
+                    <option value="dd/MM/yyyy">dd/MM/yyyy</option>
+                    <option value="yyyy-MM-dd">yyyy-MM-dd</option>
+                    <option value="dd-MMM-yyyy">dd-MMM-yyyy</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Currency</label>
+                  <select class="form-select" formControlName="currency">
+                    <option value="PHP">PHP - Philippine Peso</option>
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Fiscal Year Start</label>
+                  <select class="form-select" formControlName="fiscalYearStart">
+                    <option value="January">January</option>
+                    <option value="April">April</option>
+                    <option value="July">July</option>
+                    <option value="October">October</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button 
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="resetToDefaults('general')"
+                  [disabled]="isSaving()">
+                  Reset to Defaults
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="saveSettings('general')"
+                  [disabled]="isSaving() || generalForm.invalid">
+                  @if (isSaving()) {
+                    <div class="btn-spinner"></div>
+                  }
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+
+        <!-- Security Settings -->
+        @if (activeTab() === 'security') {
+          <div class="settings-section">
+            <div class="section-header">
+              <h2 class="section-title">Security Settings</h2>
+              <p class="section-description">Configure authentication and security policies</p>
+            </div>
+
+            <form [formGroup]="securityForm" class="settings-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Session Timeout (minutes)</label>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="sessionTimeout"
+                    min="5" max="480"
+                    placeholder="30">
+                  <span class="form-help">Users will be logged out after this period of inactivity</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Minimum Password Length</label>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="passwordMinLength"
+                    min="6" max="32"
+                    placeholder="8">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Max Login Attempts</label>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="maxLoginAttempts"
+                    min="1" max="10"
+                    placeholder="3">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Lockout Duration (minutes)</label>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="lockoutDuration"
+                    min="1" max="1440"
+                    placeholder="15">
+                  <span class="form-help">How long users are locked out after exceeding login attempts</span>
+                </div>
+
+                <div class="form-group checkbox-group">
+                  <label class="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      class="form-checkbox"
+                      formControlName="passwordRequireSpecialChars">
+                    <span class="checkbox-text">Require special characters in passwords</span>
+                  </label>
+                </div>
+
+                <div class="form-group checkbox-group">
+                  <label class="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      class="form-checkbox"
+                      formControlName="twoFactorEnabled">
+                    <span class="checkbox-text">Enable two-factor authentication</span>
+                  </label>
+                  <span class="form-help">Requires users to verify identity with a second factor</span>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button 
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="resetToDefaults('security')"
+                  [disabled]="isSaving()">
+                  Reset to Defaults
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="saveSettings('security')"
+                  [disabled]="isSaving() || securityForm.invalid">
+                  @if (isSaving()) {
+                    <div class="btn-spinner"></div>
+                  }
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+
+        <!-- Notifications Settings -->
+        @if (activeTab() === 'notifications') {
+          <div class="settings-section">
+            <div class="section-header">
+              <h2 class="section-title">Notification Settings</h2>
+              <p class="section-description">Configure system notifications and alerts</p>
+            </div>
+
+            <form [formGroup]="notificationsForm" class="settings-form">
+              <div class="notification-groups">
+                <div class="notification-group">
+                  <h3 class="group-title">Email Notifications</h3>
+                  <div class="checkbox-group">
+                    <label class="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        class="form-checkbox"
+                        formControlName="emailNotifications">
+                      <span class="checkbox-text">Enable email notifications</span>
+                    </label>
+                    <span class="form-help">Send notifications via email to administrators</span>
+                  </div>
+                </div>
+
+                <div class="notification-group">
+                  <h3 class="group-title">System Alerts</h3>
+                  <div class="checkbox-group">
+                    <label class="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        class="form-checkbox"
+                        formControlName="systemAlerts">
+                      <span class="checkbox-text">System alerts</span>
+                    </label>
+                    <span class="form-help">Alerts for system errors and critical events</span>
+                  </div>
+
+                  <div class="checkbox-group">
+                    <label class="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        class="form-checkbox"
+                        formControlName="auditAlerts">
+                      <span class="checkbox-text">Audit alerts</span>
+                    </label>
+                    <span class="form-help">Notifications for security and audit events</span>
+                  </div>
+                </div>
+
+                <div class="notification-group">
+                  <h3 class="group-title">Reports & Maintenance</h3>
+                  <div class="checkbox-group">
+                    <label class="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        class="form-checkbox"
+                        formControlName="reportGeneration">
+                      <span class="checkbox-text">Report generation notifications</span>
+                    </label>
+                    <span class="form-help">Notify when reports are generated or fail</span>
+                  </div>
+
+                  <div class="checkbox-group">
+                    <label class="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        class="form-checkbox"
+                        formControlName="maintenanceMode">
+                      <span class="checkbox-text">Maintenance mode</span>
+                    </label>
+                    <span class="form-help">Enable maintenance mode notifications</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button 
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="testEmailSettings()"
+                  [disabled]="isSaving()">
+                  @if (isSaving()) {
+                    <div class="btn-spinner"></div>
+                  }
+                  Test Email
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="resetToDefaults('notifications')"
+                  [disabled]="isSaving()">
+                  Reset to Defaults
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="saveSettings('notifications')"
+                  [disabled]="isSaving()">
+                  @if (isSaving()) {
+                    <div class="btn-spinner"></div>
+                  }
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+
+        <!-- Data Retention Settings -->
+        @if (activeTab() === 'dataRetention') {
+          <div class="settings-section">
+            <div class="section-header">
+              <h2 class="section-title">Data Retention Settings</h2>
+              <p class="section-description">Configure how long different types of data are retained</p>
+            </div>
+
+            <form [formGroup]="dataRetentionForm" class="settings-form">
+              <div class="retention-grid">
+                <div class="retention-item">
+                  <div class="retention-header">
+                    <h3 class="retention-title">Disbursement Records</h3>
+                    <span class="retention-period">{{ getDaysInWords(dataRetentionForm.get('disbursementRetention')?.value || 0) }}</span>
+                  </div>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="disbursementRetention"
+                    min="365"
+                    placeholder="2555">
+                  <span class="form-help">Financial records retention period (minimum 1 year)</span>
+                </div>
+
+                <div class="retention-item">
+                  <div class="retention-header">
+                    <h3 class="retention-title">User Data</h3>
+                    <span class="retention-period">{{ getDaysInWords(dataRetentionForm.get('userDataRetention')?.value || 0) }}</span>
+                  </div>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="userDataRetention"
+                    min="365"
+                    placeholder="1095">
+                  <span class="form-help">User account and profile data retention</span>
+                </div>
+
+                <div class="retention-item">
+                  <div class="retention-header">
+                    <h3 class="retention-title">Session Logs</h3>
+                    <span class="retention-period">{{ getDaysInWords(dataRetentionForm.get('sessionLogRetention')?.value || 0) }}</span>
+                  </div>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="sessionLogRetention"
+                    min="30"
+                    placeholder="365">
+                  <span class="form-help">User session and activity logs</span>
+                </div>
+
+                <div class="retention-item">
+                  <div class="retention-header">
+                    <h3 class="retention-title">Audit Logs</h3>
+                    <span class="retention-period">{{ getDaysInWords(dataRetentionForm.get('auditLogRetention')?.value || 0) }}</span>
+                  </div>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="auditLogRetention"
+                    min="365"
+                    placeholder="1825">
+                  <span class="form-help">Security and audit trail logs (minimum 1 year)</span>
+                </div>
+              </div>
+
+              <div class="checkbox-group">
+                <label class="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    class="form-checkbox"
+                    formControlName="autoArchiveEnabled">
+                  <span class="checkbox-text">Enable automatic archiving</span>
+                </label>
+                <span class="form-help">Automatically archive data when retention period expires</span>
+              </div>
+
+              <div class="form-actions">
+                <button 
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="resetToDefaults('dataRetention')"
+                  [disabled]="isSaving()">
+                  Reset to Defaults
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="saveSettings('dataRetention')"
+                  [disabled]="isSaving() || dataRetentionForm.invalid">
+                  @if (isSaving()) {
+                    <div class="btn-spinner"></div>
+                  }
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+
+        <!-- Backup Settings -->
+        @if (activeTab() === 'backup') {
+          <div class="settings-section">
+            <div class="section-header">
+              <h2 class="section-title">Backup Settings</h2>
+              <p class="section-description">Configure automatic backups and data protection</p>
+            </div>
+
+            <!-- Backup Status -->
+            @if (settings()?.backup) {
+              <div class="backup-status">
+                <div class="status-card">
+                  <div class="status-header">
+                    <h3 class="status-title">Backup Status</h3>
+                    <span class="status-badge status-active">Active</span>
+                  </div>
+                  <div class="status-details">
+                    <div class="status-item">
+                      <span class="status-label">Last Backup:</span>
+                      <span class="status-value">{{ formatDate(settings()!.backup.lastBackup) }}</span>
+                    </div>
+                    <div class="status-item">
+                      <span class="status-label">Next Backup:</span>
+                      <span class="status-value">{{ formatDate(settings()!.backup.nextBackup) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <form [formGroup]="backupForm" class="settings-form">
+              <div class="form-grid">
+                <div class="form-group checkbox-group">
+                  <label class="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      class="form-checkbox"
+                      formControlName="autoBackupEnabled">
+                    <span class="checkbox-text">Enable automatic backups</span>
+                  </label>
+                  <span class="form-help">Automatically backup system data at scheduled intervals</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Backup Frequency</label>
+                  <select class="form-select" formControlName="backupFrequency">
+                    <option value="hourly">Hourly</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Backup Retention (days)</label>
+                  <input 
+                    type="number" 
+                    class="form-input"
+                    formControlName="backupRetention"
+                    min="7" max="365"
+                    placeholder="30">
+                  <span class="form-help">How long to keep backup files</span>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button 
+                  type="button"
+                  class="btn btn-success"
+                  (click)="performBackup()"
+                  [disabled]="isSaving()">
+                  @if (isSaving()) {
+                    <div class="btn-spinner"></div>
+                  } @else {
+                    <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                    </svg>
+                  }
+                  Backup Now
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="resetToDefaults('backup')"
+                  [disabled]="isSaving()">
+                  Reset to Defaults
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="saveSettings('backup')"
+                  [disabled]="isSaving() || backupForm.invalid">
+                  @if (isSaving()) {
+                    <div class="btn-spinner"></div>
+                  }
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

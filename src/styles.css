@@ -12,6 +12,7 @@ html, body {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  background-color: #f9fafb; /* Consistent gray-50 background */
 }
 
 app-root {

@@ -1,0 +1,303 @@
+<div class="archived-data-container">
+  <div class="header">
+    <div class="header-content">
+      <h1 class="page-title">Archived Data</h1>
+      <p class="page-subtitle">Manage and monitor archived records with retention policies</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="loadArchivedData()" [disabled]="isLoading()">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Refresh
+      </button>
+      <button class="btn btn-primary" (click)="exportArchive('csv')" [disabled]="isProcessing()">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Export Archive
+      </button>
+    </div>
+  </div>
+
+  @if (summary()) {
+    <div class="summary-section">
+      <h2 class="section-title">Archive Overview</h2>
+      
+      <div class="summary-cards">
+        <div class="summary-card total">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+            </svg>
+          </div>
+          <div class="card-content">
+            <h3>Total Archived</h3>
+            <p class="count">{{ summary()!.totalRecords | number }}</p>
+            <p class="size">{{ formatFileSize(summary()!.totalSize) }}</p>
+          </div>
+        </div>
+
+        <div class="type-cards">
+          <div class="type-card disbursement">
+            <div class="type-header">
+              <span class="type-icon">💰</span>
+              <span class="type-label">Disbursements</span>
+            </div>
+            <div class="type-stats">
+              <span class="type-count">{{ summary()!.byType.disbursement.count | number }}</span>
+              <span class="type-size">{{ formatFileSize(summary()!.byType.disbursement.size) }}</span>
+            </div>
+          </div>
+
+          <div class="type-card user">
+            <div class="type-header">
+              <span class="type-icon">👤</span>
+              <span class="type-label">Users</span>
+            </div>
+            <div class="type-stats">
+              <span class="type-count">{{ summary()!.byType.user.count | number }}</span>
+              <span class="type-size">{{ formatFileSize(summary()!.byType.user.size) }}</span>
+            </div>
+          </div>
+
+          <div class="type-card classification">
+            <div class="type-header">
+              <span class="type-icon">🏷️</span>
+              <span class="type-label">Classifications</span>
+            </div>
+            <div class="type-stats">
+              <span class="type-count">{{ summary()!.byType.classification.count | number }}</span>
+              <span class="type-size">{{ formatFileSize(summary()!.byType.classification.size) }}</span>
+            </div>
+          </div>
+
+          <div class="type-card session">
+            <div class="type-header">
+              <span class="type-icon">🔐</span>
+              <span class="type-label">Sessions</span>
+            </div>
+            <div class="type-stats">
+              <span class="type-count">{{ summary()!.byType.session.count | number }}</span>
+              <span class="type-size">{{ formatFileSize(summary()!.byType.session.size) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="retention-cards">
+          <div class="retention-card active">
+            <div class="retention-header">
+              <span class="retention-icon">✅</span>
+              <span class="retention-label">Active</span>
+            </div>
+            <div class="retention-count">{{ summary()!.retentionStatus.active | number }}</div>
+            <div class="retention-desc">Safe for retention</div>
+          </div>
+
+          <div class="retention-card warning">
+            <div class="retention-header">
+              <span class="retention-icon">⚠️</span>
+              <span class="retention-label">Expiring Soon</span>
+            </div>
+            <div class="retention-count">{{ summary()!.retentionStatus.expiringSoon | number }}</div>
+            <div class="retention-desc">Within 30 days</div>
+          </div>
+
+          <div class="retention-card expired">
+            <div class="retention-header">
+              <span class="retention-icon">❌</span>
+              <span class="retention-label">Expired</span>
+            </div>
+            <div class="retention-count">{{ summary()!.retentionStatus.expired | number }}</div>
+            <div class="retention-desc">Ready for deletion</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="archive-section">
+    <div class="section-header">
+      <h2 class="section-title">Archived Records ({{ filteredRecords().length }})</h2>
+      <div class="bulk-actions">
+        @if (selectedRecords().size > 0) {
+          <span class="selection-count">{{ selectedRecords().size }} selected</span>
+          <button class="btn btn-sm btn-success" (click)="restoreRecords()" [disabled]="isProcessing()">
+            <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+            </svg>
+            Restore
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="permanentlyDelete()" [disabled]="isProcessing()">
+            <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Delete
+          </button>
+          <button class="btn btn-sm btn-outline" (click)="clearSelection()">
+            Clear
+          </button>
+        } @else {
+          <button class="btn btn-sm btn-outline" (click)="selectAllVisible()">
+            Select All Visible
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <div class="search-box">
+        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input 
+          type="text" 
+          placeholder="Search archived records..." 
+          class="search-input"
+          [formControl]="searchControl"
+        >
+      </div>
+      <div class="filter-controls">
+        <select class="filter-select" [formControl]="typeFilter">
+          <option value="">All Types</option>
+          <option value="disbursement">Disbursements</option>
+          <option value="user">Users</option>
+          <option value="classification">Classifications</option>
+          <option value="session">Sessions</option>
+        </select>
+        <select class="filter-select" [formControl]="retentionFilter">
+          <option value="">All Retention Status</option>
+          <option value="active">Active</option>
+          <option value="expiring">Expiring Soon</option>
+          <option value="expired">Expired</option>
+        </select>
+        <input type="date" class="filter-select" [formControl]="dateFromFilter" placeholder="From Date">
+        <input type="date" class="filter-select" [formControl]="dateToFilter" placeholder="To Date">
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading archived records...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3>Error Loading Archive</h3>
+        <p>{{ error() }}</p>
+        <button class="btn btn-primary" (click)="loadArchivedData()">Try Again</button>
+      </div>
+    } @else {
+      @if (filteredRecords().length === 0) {
+        <div class="empty-state">
+          <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+          </svg>
+          <h3>No Archived Records</h3>
+          <p>No archived records match your current filters.</p>
+        </div>
+      } @else {
+        <div class="records-grid">
+          @for (record of filteredRecords(); track record.id) {
+            <div class="record-card" [class]="getRetentionStatus(record).class">
+              <div class="record-header">
+                <div class="record-selection">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedRecords().has(record.id)"
+                    (change)="toggleRecordSelection(record.id)"
+                    class="record-checkbox"
+                  >
+                </div>
+                <div class="record-type">
+                  <span class="type-icon">{{ getTypeIcon(record.type) }}</span>
+                  <span class="type-label">{{ record.type | titlecase }}</span>
+                </div>
+                <div class="record-status">
+                  <span class="status-badge" [class]="getRetentionStatus(record).class">
+                    {{ getRetentionStatus(record).status }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="record-content">
+                <h3 class="record-title">{{ record.title }}</h3>
+                <p class="record-description">{{ record.description }}</p>
+                
+                <div class="record-meta">
+                  <div class="meta-row">
+                    <span class="meta-label">Archived:</span>
+                    <span class="meta-value">{{ formatDate(record.archivedDate) }}</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">By:</span>
+                    <span class="meta-value">{{ record.archivedBy }}</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Size:</span>
+                    <span class="meta-value">{{ formatFileSize(record.size) }}</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Retention:</span>
+                    <span class="meta-value">
+                      @if (getRetentionStatus(record).daysRemaining > 0) {
+                        {{ getRetentionStatus(record).daysRemaining }} days remaining
+                      } @else {
+                        Expired {{ Math.abs(getRetentionStatus(record).daysRemaining) }} days ago
+                      }
+                    </span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Reason:</span>
+                    <span class="meta-value">{{ record.reason }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="record-actions">
+                @if (record.canRestore) {
+                  <button class="btn btn-sm btn-success" (click)="toggleRecordSelection(record.id); restoreRecords()" [disabled]="isProcessing()">
+                    <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    Restore
+                  </button>
+                } @else {
+                  <span class="restore-disabled">Cannot restore</span>
+                }
+                
+                <button class="btn btn-sm btn-outline" title="View original data">
+                  <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  View
+                </button>
+                
+                <button class="btn btn-sm btn-danger" (click)="toggleRecordSelection(record.id); permanentlyDelete()" [disabled]="isProcessing()">
+                  <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  @if (isProcessing()) {
+    <div class="processing-overlay">
+      <div class="processing-modal">
+        <div class="loading-spinner"></div>
+        <h3>Processing Request</h3>
+        <p>Please wait while we process your request...</p>
+      </div>
+    </div>
+  }
+</div>

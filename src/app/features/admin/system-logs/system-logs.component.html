@@ -1,0 +1,387 @@
+<div class="system-logs-container">
+  <div class="header">
+    <div class="header-content">
+      <h1 class="page-title">System Logs</h1>
+      <p class="page-subtitle">Monitor system activities, user actions, and security events</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="refreshLogs()" [disabled]="isLoading()">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Refresh
+      </button>
+      <button class="btn btn-primary" (click)="exportLogs('csv')" [disabled]="isExporting()">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Export CSV
+      </button>
+      <button class="btn btn-warning" (click)="clearOldLogs()">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        Clear Old Logs
+      </button>
+    </div>
+  </div>
+
+  @if (summary()) {
+    <div class="summary-section">
+      <h2 class="section-title">Activity Overview</h2>
+      
+      <div class="summary-cards">
+        <div class="summary-card total">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div class="card-content">
+            <h3>Total Logs</h3>
+            <p class="count">{{ summary()!.totalLogs | number }}</p>
+            <p class="label">System events</p>
+          </div>
+        </div>
+
+        <div class="summary-card activity">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div class="card-content">
+            <h3>Recent Activity</h3>
+            <div class="activity-stats">
+              <div class="stat">
+                <span class="stat-value">{{ summary()!.recentActivity.lastHour }}</span>
+                <span class="stat-label">Last hour</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ summary()!.recentActivity.last24Hours }}</span>
+                <span class="stat-label">Last 24h</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ summary()!.recentActivity.lastWeek }}</span>
+                <span class="stat-label">Last week</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="level-cards">
+          <div class="level-card info">
+            <div class="level-header">
+              <span class="level-icon">ℹ️</span>
+              <span class="level-label">Info</span>
+            </div>
+            <div class="level-count">{{ summary()!.byLevel.info | number }}</div>
+          </div>
+
+          <div class="level-card warning">
+            <div class="level-header">
+              <span class="level-icon">⚠️</span>
+              <span class="level-label">Warning</span>
+            </div>
+            <div class="level-count">{{ summary()!.byLevel.warning | number }}</div>
+          </div>
+
+          <div class="level-card error">
+            <div class="level-header">
+              <span class="level-icon">❌</span>
+              <span class="level-label">Error</span>
+            </div>
+            <div class="level-count">{{ summary()!.byLevel.error | number }}</div>
+          </div>
+
+          <div class="level-card debug">
+            <div class="level-header">
+              <span class="level-icon">🐛</span>
+              <span class="level-label">Debug</span>
+            </div>
+            <div class="level-count">{{ summary()!.byLevel.debug | number }}</div>
+          </div>
+        </div>
+
+        <div class="category-cards">
+          <div class="category-card auth">
+            <div class="category-header">
+              <span class="category-icon">🔐</span>
+              <span class="category-label">Authentication</span>
+            </div>
+            <div class="category-count">{{ summary()!.byCategory.auth | number }}</div>
+          </div>
+
+          <div class="category-card data">
+            <div class="category-header">
+              <span class="category-icon">📊</span>
+              <span class="category-label">Data</span>
+            </div>
+            <div class="category-count">{{ summary()!.byCategory.data | number }}</div>
+          </div>
+
+          <div class="category-card system">
+            <div class="category-header">
+              <span class="category-icon">⚙️</span>
+              <span class="category-label">System</span>
+            </div>
+            <div class="category-count">{{ summary()!.byCategory.system | number }}</div>
+          </div>
+
+          <div class="category-card user">
+            <div class="category-header">
+              <span class="category-icon">👤</span>
+              <span class="category-label">User</span>
+            </div>
+            <div class="category-count">{{ summary()!.byCategory.user | number }}</div>
+          </div>
+
+          <div class="category-card security">
+            <div class="category-header">
+              <span class="category-icon">🛡️</span>
+              <span class="category-label">Security</span>
+            </div>
+            <div class="category-count">{{ summary()!.byCategory.security | number }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="logs-section">
+    <div class="section-header">
+      <h2 class="section-title">System Logs ({{ filteredLogs().length }})</h2>
+      <div class="filters">
+        <div class="search-box">
+          <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input 
+            type="text" 
+            placeholder="Search logs by action, description, or user..." 
+            class="search-input"
+            [formControl]="searchControl"
+          >
+        </div>
+        <select class="filter-select" [formControl]="levelFilter">
+          <option value="">All Levels</option>
+          <option value="info">Info</option>
+          <option value="warning">Warning</option>
+          <option value="error">Error</option>
+          <option value="debug">Debug</option>
+        </select>
+        <select class="filter-select" [formControl]="categoryFilter">
+          <option value="">All Categories</option>
+          <option value="auth">Authentication</option>
+          <option value="data">Data</option>
+          <option value="system">System</option>
+          <option value="user">User</option>
+          <option value="security">Security</option>
+        </select>
+        <input type="text" class="filter-select" [formControl]="userFilter" placeholder="Filter by user">
+        <input type="date" class="filter-select" [formControl]="dateFromFilter" placeholder="From Date">
+        <input type="date" class="filter-select" [formControl]="dateToFilter" placeholder="To Date">
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading system logs...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3>Error Loading Logs</h3>
+        <p>{{ error() }}</p>
+        <button class="btn btn-primary" (click)="loadLogs()">Try Again</button>
+      </div>
+    } @else {
+      @if (filteredLogs().length === 0) {
+        <div class="empty-state">
+          <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3>No Logs Found</h3>
+          <p>No system logs match your current filters.</p>
+        </div>
+      } @else {
+        <div class="logs-list">
+          @for (log of filteredLogs(); track log.id) {
+            <div class="log-entry" [class]="getLevelClass(log.level) + ' ' + getCategoryClass(log.category)" (click)="viewLogDetails(log)">
+              <div class="log-header">
+                <div class="log-meta">
+                  <span class="level-badge" [class]="getLevelClass(log.level)">
+                    <span class="level-icon">{{ getLevelIcon(log.level) }}</span>
+                    <span class="level-text">{{ log.level | uppercase }}</span>
+                  </span>
+                  <span class="category-badge" [class]="getCategoryClass(log.category)">
+                    <span class="category-icon">{{ getCategoryIcon(log.category) }}</span>
+                    <span class="category-text">{{ log.category | titlecase }}</span>
+                  </span>
+                  <span class="timestamp">
+                    <svg class="timestamp-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ formatTimestamp(log.timestamp) }}
+                    <span class="relative-time">({{ getRelativeTime(log.timestamp) }})</span>
+                  </span>
+                </div>
+                <button class="view-details-btn" (click)="viewLogDetails(log); $event.stopPropagation()">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="log-content">
+                <h3 class="log-action">{{ log.action }}</h3>
+                <p class="log-description">{{ log.description }}</p>
+                
+                @if (log.userName || log.ipAddress) {
+                  <div class="log-details">
+                    @if (log.userName) {
+                      <span class="detail-item">
+                        <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        {{ log.userName }}
+                      </span>
+                    }
+                    @if (log.ipAddress) {
+                      <span class="detail-item">
+                        <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"></path>
+                        </svg>
+                        {{ log.ipAddress }}
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  @if (selectedLog()) {
+    <div class="log-details-overlay" (click)="closeLogDetails()">
+      <div class="log-details-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Log Details</h2>
+          <button class="close-btn" (click)="closeLogDetails()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="modal-content">
+          <div class="log-detail-section">
+            <h3>Basic Information</h3>
+            <div class="detail-grid">
+              <div class="detail-row">
+                <span class="detail-label">Timestamp:</span>
+                <span class="detail-value">{{ formatTimestamp(selectedLog()!.timestamp) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Level:</span>
+                <span class="detail-value">
+                  <span class="level-badge" [class]="getLevelClass(selectedLog()!.level)">
+                    {{ getLevelIcon(selectedLog()!.level) }} {{ selectedLog()!.level | uppercase }}
+                  </span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Category:</span>
+                <span class="detail-value">
+                  <span class="category-badge" [class]="getCategoryClass(selectedLog()!.category)">
+                    {{ getCategoryIcon(selectedLog()!.category) }} {{ selectedLog()!.category | titlecase }}
+                  </span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Action:</span>
+                <span class="detail-value">{{ selectedLog()!.action }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Description:</span>
+                <span class="detail-value">{{ selectedLog()!.description }}</span>
+              </div>
+            </div>
+          </div>
+
+          @if (selectedLog()!.userName || selectedLog()!.userId || selectedLog()!.sessionId) {
+            <div class="log-detail-section">
+              <h3>User Information</h3>
+              <div class="detail-grid">
+                @if (selectedLog()!.userName) {
+                  <div class="detail-row">
+                    <span class="detail-label">User Name:</span>
+                    <span class="detail-value">{{ selectedLog()!.userName }}</span>
+                  </div>
+                }
+                @if (selectedLog()!.userId) {
+                  <div class="detail-row">
+                    <span class="detail-label">User ID:</span>
+                    <span class="detail-value">{{ selectedLog()!.userId }}</span>
+                  </div>
+                }
+                @if (selectedLog()!.sessionId) {
+                  <div class="detail-row">
+                    <span class="detail-label">Session ID:</span>
+                    <span class="detail-value">{{ selectedLog()!.sessionId }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (selectedLog()!.ipAddress || selectedLog()!.userAgent) {
+            <div class="log-detail-section">
+              <h3>Technical Information</h3>
+              <div class="detail-grid">
+                @if (selectedLog()!.ipAddress) {
+                  <div class="detail-row">
+                    <span class="detail-label">IP Address:</span>
+                    <span class="detail-value">{{ selectedLog()!.ipAddress }}</span>
+                  </div>
+                }
+                @if (selectedLog()!.userAgent) {
+                  <div class="detail-row">
+                    <span class="detail-label">User Agent:</span>
+                    <span class="detail-value user-agent">{{ selectedLog()!.userAgent }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (selectedLog()!.details) {
+            <div class="log-detail-section">
+              <h3>Additional Details</h3>
+              <div class="details-json">
+                <pre>{{ selectedLog()!.details | json }}</pre>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (isExporting()) {
+    <div class="exporting-overlay">
+      <div class="exporting-modal">
+        <div class="loading-spinner"></div>
+        <h3>Exporting Logs</h3>
+        <p>Please wait while we prepare your log export...</p>
+      </div>
+    </div>
+  }
+</div>

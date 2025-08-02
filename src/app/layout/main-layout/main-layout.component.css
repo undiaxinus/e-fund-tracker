@@ -3,6 +3,18 @@
   width: 4rem !important;
 }
 
+/* Ensure main content background stays consistent */
+.sidebar-collapsed .flex-1 {
+  background-color: #f9fafb !important; /* bg-gray-50 */
+}
+
+/* Prevent any overlay interference with main content */
+main {
+  background-color: #f9fafb; /* bg-gray-50 */
+  position: relative;
+  z-index: 1;
+}
+
 /* Mobile sidebar styles */
 @media (max-width: 1024px) {
   aside {

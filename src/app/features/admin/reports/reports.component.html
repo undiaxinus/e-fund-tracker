@@ -1,0 +1,280 @@
+<div class="reports-container">
+  <div class="header">
+    <div class="header-content">
+      <h1 class="page-title">Reports & Analytics</h1>
+      <p class="page-subtitle">Generate, view, and manage comprehensive financial reports</p>
+    </div>
+    <div class="header-actions">
+      <div class="report-generators">
+        <button class="btn btn-primary" (click)="generateReport('financial')" [disabled]="isGenerating()">
+          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          Financial Report
+        </button>
+        <button class="btn btn-outline" (click)="generateReport('disbursement')" [disabled]="isGenerating()">
+          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Disbursement Report
+        </button>
+        <button class="btn btn-outline" (click)="generateReport('audit')" [disabled]="isGenerating()">
+          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Audit Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (summary()) {
+    <div class="summary-section">
+      <h2 class="section-title">Financial Overview</h2>
+      
+      <div class="overview-cards">
+        <div class="overview-card total">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="card-content">
+            <h3>Total Disbursements</h3>
+            <p class="amount">{{ formatCurrency(summary()!.totalAmount) }}</p>
+            <p class="count">{{ summary()!.totalDisbursements | number }} transactions</p>
+          </div>
+        </div>
+
+        <div class="classification-cards">
+          <div class="classification-card ps">
+            <div class="card-header">
+              <span class="classification-label">Personnel Services</span>
+              <span class="classification-badge">PS</span>
+            </div>
+            <div class="card-stats">
+              <p class="amount">{{ formatCurrency(summary()!.byClassification.PS.amount) }}</p>
+              <p class="count">{{ summary()!.byClassification.PS.count | number }} records</p>
+            </div>
+          </div>
+
+          <div class="classification-card mooe">
+            <div class="card-header">
+              <span class="classification-label">MOOE</span>
+              <span class="classification-badge">MOOE</span>
+            </div>
+            <div class="card-stats">
+              <p class="amount">{{ formatCurrency(summary()!.byClassification.MOOE.amount) }}</p>
+              <p class="count">{{ summary()!.byClassification.MOOE.count | number }} records</p>
+            </div>
+          </div>
+
+          <div class="classification-card co">
+            <div class="card-header">
+              <span class="classification-label">Capital Outlay</span>
+              <span class="classification-badge">CO</span>
+            </div>
+            <div class="card-stats">
+              <p class="amount">{{ formatCurrency(summary()!.byClassification.CO.amount) }}</p>
+              <p class="count">{{ summary()!.byClassification.CO.count | number }} records</p>
+            </div>
+          </div>
+
+          <div class="classification-card tr">
+            <div class="card-header">
+              <span class="classification-label">Trust Receipts</span>
+              <span class="classification-badge">TR</span>
+            </div>
+            <div class="card-stats">
+              <p class="amount">{{ formatCurrency(summary()!.byClassification.TR.amount) }}</p>
+              <p class="count">{{ summary()!.byClassification.TR.count | number }} records</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-section">
+        <div class="chart-card">
+          <h3>Monthly Trends</h3>
+          <div class="trend-chart">
+            @for (trend of summary()!.monthlyTrends; track trend.month) {
+              <div class="trend-bar">
+                <div class="bar" [style.height.%]="(trend.amount / 3500000) * 100">
+                  <span class="bar-value">{{ formatCurrency(trend.amount) }}</span>
+                </div>
+                <span class="bar-label">{{ trend.month }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3>Department Breakdown</h3>
+          <div class="department-list">
+            @for (dept of summary()!.byDepartment | keyvalue; track dept.key) {
+              <div class="department-item">
+                <div class="dept-info">
+                  <span class="dept-name">{{ dept.key }}</span>
+                  <span class="dept-count">{{ dept.value.count }} transactions</span>
+                </div>
+                <div class="dept-amount">{{ formatCurrency(dept.value.amount) }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="export-actions">
+        <button class="btn btn-outline" (click)="exportSummary('pdf')">
+          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Export PDF
+        </button>
+        <button class="btn btn-outline" (click)="exportSummary('excel')">
+          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Export Excel
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="reports-section">
+    <div class="section-header">
+      <h2 class="section-title">Generated Reports</h2>
+      <div class="filters">
+        <div class="search-box">
+          <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input 
+            type="text" 
+            placeholder="Search reports..." 
+            class="search-input"
+            [formControl]="searchControl"
+          >
+        </div>
+        <select class="filter-select" [formControl]="typeFilter">
+          <option value="">All Types</option>
+          <option value="financial">Financial</option>
+          <option value="disbursement">Disbursement</option>
+          <option value="classification">Classification</option>
+          <option value="audit">Audit</option>
+        </select>
+        <input type="date" class="filter-select" [formControl]="dateFromFilter" placeholder="From Date">
+        <input type="date" class="filter-select" [formControl]="dateToFilter" placeholder="To Date">
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading reports...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3>Error Loading Reports</h3>
+        <p>{{ error() }}</p>
+        <button class="btn btn-primary" (click)="loadReports()">Try Again</button>
+      </div>
+    } @else {
+      @if (filteredReports().length === 0) {
+        <div class="empty-state">
+          <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3>No Reports Found</h3>
+          <p>No reports match your current filters.</p>
+        </div>
+      } @else {
+        <div class="reports-grid">
+          @for (report of filteredReports(); track report.id) {
+            <div class="report-card" [class]="'status-' + report.status">
+              <div class="report-header">
+                <div class="report-type">
+                  <span class="type-icon">{{ getTypeIcon(report.type) }}</span>
+                  <span class="type-label">{{ report.type | titlecase }}</span>
+                </div>
+                <div class="report-status">
+                  <span class="status-icon">{{ getStatusIcon(report.status) }}</span>
+                  <span class="status-label">{{ report.status | titlecase }}</span>
+                </div>
+              </div>
+              
+              <div class="report-content">
+                <h3 class="report-title">{{ report.title }}</h3>
+                <p class="report-description">{{ report.description }}</p>
+                
+                <div class="report-meta">
+                  <div class="meta-item">
+                    <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span>{{ report.dateRange }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span>{{ report.generatedBy }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>{{ report.generatedAt | date:'MMM dd, yyyy HH:mm' }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="report-actions">
+                @if (report.status === 'generated' && report.downloadUrl) {
+                  <button class="btn btn-sm btn-primary" (click)="downloadReport(report)">
+                    <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Download
+                  </button>
+                } @else if (report.status === 'pending') {
+                  <button class="btn btn-sm btn-outline" disabled>
+                    <div class="loading-spinner-sm"></div>
+                    Generating...
+                  </button>
+                } @else if (report.status === 'error') {
+                  <button class="btn btn-sm btn-warning" (click)="generateReport(report.type)">
+                    <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Retry
+                  </button>
+                }
+                
+                <button class="btn btn-sm btn-outline" (click)="deleteReport(report.id)">
+                  <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  @if (isGenerating()) {
+    <div class="generating-overlay">
+      <div class="generating-modal">
+        <div class="loading-spinner"></div>
+        <h3>Generating Report</h3>
+        <p>Please wait while we generate your report...</p>
+      </div>
+    </div>
+  }
+</div>
