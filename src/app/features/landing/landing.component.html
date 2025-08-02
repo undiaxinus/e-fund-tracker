@@ -1,140 +1,284 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-gray-900 flex flex-col overflow-y-auto overflow-x-hidden relative">
-  <!-- PNP Pattern Background -->
-  <div class="absolute inset-0 opacity-3">
-    <div class="absolute top-10 left-10 w-32 h-32 border border-blue-400/20 rounded-full"></div>
-    <div class="absolute top-32 right-20 w-24 h-24 border border-yellow-400/20 rounded-full"></div>
-    <div class="absolute bottom-20 left-20 w-40 h-40 border border-blue-400/20 rounded-full"></div>
-    <div class="absolute bottom-40 right-10 w-28 h-28 border border-yellow-400/20 rounded-full"></div>
+  <!-- Enhanced Animated Background -->
+  <div class="absolute inset-0 opacity-5">
+    <div class="absolute top-10 left-10 w-32 h-32 border border-blue-400/30 rounded-full animate-pulse"></div>
+    <div class="absolute top-32 right-20 w-24 h-24 border border-yellow-400/30 rounded-full animate-bounce" style="animation-delay: 1s;"></div>
+    <div class="absolute bottom-20 left-20 w-40 h-40 border border-blue-400/30 rounded-full animate-pulse" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-40 right-10 w-28 h-28 border border-yellow-400/30 rounded-full animate-bounce" style="animation-delay: 3s;"></div>
+    <!-- Additional floating elements -->
+    <div class="absolute top-1/2 left-1/4 w-16 h-16 border border-green-400/20 rounded-full animate-ping" style="animation-delay: 4s;"></div>
+    <div class="absolute top-1/3 right-1/3 w-20 h-20 border border-purple-400/20 rounded-full animate-pulse" style="animation-delay: 5s;"></div>
   </div>
-  <!-- Header Section -->
-  <header class="bg-slate-900/50 backdrop-blur-md border-b border-yellow-400/20 py-6 relative z-10">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-3">
-          <img src="/assets/images/pnp-logo.png" alt="PNP Logo" class="w-15 h-15 object-contain" onerror="this.style.display='none'">
-          <img src="/assets/images/finance-logo.png" alt="Finance Logo" class="w-15 h-15 object-contain" onerror="this.style.display='none'">
+  
+  <!-- Gradient Overlay for better text readability -->
+  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent pointer-events-none"></div>
+  <!-- Compact Header Section -->
+  <header class="bg-slate-900/60 backdrop-blur-xl border-b border-yellow-400/30 py-4 relative z-10 shadow-lg">
+    <div class="max-w-7xl mx-auto px-6">
+      <!-- Main Header Content -->
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <!-- Logo and Organization Info -->
+        <div class="flex items-center gap-4">
+          <!-- Logos -->
+          <div class="flex items-center gap-3 animate-fade-in">
+            <div class="relative group">
+              <img src="/assets/images/pnp-logo.png" alt="Philippine National Police Logo" class="w-12 h-12 object-contain transition-all duration-300 group-hover:scale-110" onerror="this.style.display='none'">
+              <div class="absolute inset-0 bg-yellow-400/20 rounded-full blur-lg opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
+            </div>
+            <div class="relative group">
+              <img src="/assets/images/finance-logo.png" alt="Finance Department Logo" class="w-12 h-12 object-contain transition-all duration-300 group-hover:scale-110" onerror="this.style.display='none'">
+              <div class="absolute inset-0 bg-blue-400/20 rounded-full blur-lg opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
+            </div>
+          </div>
+          
+          <!-- Organization Information -->
+          <div class="text-white space-y-1">
+            <div class="space-y-0">
+              <h1 class="text-xl md:text-2xl font-bold text-yellow-200 tracking-wide leading-tight">Philippine National Police</h1>
+              <h2 class="text-sm md:text-base font-semibold text-blue-200 leading-tight">Financial Management Division</h2>
+            </div>
+            <p class="text-xs md:text-sm text-gray-300 max-w-xl leading-relaxed">
+              Electronic Fund Disbursement Tracking and Reporting System
+            </p>
+          </div>
         </div>
-        <div class="text-white">
-          <h1 class="text-2xl font-bold text-shadow-lg text-yellow-200">Philippine National Police</h1>
-           <h2 class="text-base font-normal opacity-90 text-shadow-sm text-gray-300">Electronic Fund Disbursement Tracking and Reporting System</h2>
-          <div class="mt-2 flex items-center gap-2">
-            <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
-            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-            <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
-            <span class="text-xs text-gray-400 ml-2">Serving with Honor, Protecting with Courage</span>
+        
+        <!-- Motto and Decorative Elements -->
+        <div class="flex flex-col items-center lg:items-end text-center lg:text-right space-y-1">
+          <div class="flex items-center gap-1">
+            <div class="flex gap-1">
+              <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-sm"></div>
+              <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-sm" style="animation-delay: 0.5s;"></div>
+              <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-sm" style="animation-delay: 1s;"></div>
+            </div>
+          </div>
+          <blockquote class="text-yellow-200 font-medium text-sm italic tracking-wide">
+            "Serving with Honor, Protecting with Courage"
+          </blockquote>
+          <div class="text-xs text-gray-400 font-light">
+            Republic of the Philippines
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <main class="flex-1 flex items-center justify-center py-16 px-6 relative z-10">
+  <!-- Main Hero Section -->
+  <main class="flex-1 flex items-center justify-center py-6 px-6 pb-20 relative z-10 min-h-screen">
     <div class="max-w-6xl w-full text-center">
-      <div class="mb-16 text-white">
-        <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight drop-shadow-lg text-gray-100">Welcome to PNP Financial Management</h1>
-        <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed drop-shadow-md text-gray-300">
-          Electronic Fund Disbursement Tracking and Reporting System for the Philippine National Police.
-          Choose your system below to get started.
+      <div class="mb-16 text-white animate-fade-in-up">
+        <div class="mb-6">
+         
+        </div>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-8 leading-tight bg-gradient-to-r from-white via-blue-100 to-yellow-200 bg-clip-text text-transparent">
+          Welcome to PNP
+          <span class="block text-yellow-300">Financial Management</span>
+        </h1>
+        <p class="text-sm md:text-base lg:text-lg opacity-80 max-w-2xl mx-auto leading-relaxed text-gray-300 mb-8">
+          Streamlined Electronic Fund Disbursement Tracking and Reporting System designed specifically for the Philippine National Police.
+          <span class="block mt-3 text-yellow-200 font-medium text-base">Choose your system below to get started.</span>
         </p>
+        
+        <!-- Quick Stats -->
+        <div class="flex flex-wrap justify-center gap-4 md:gap-6 mt-8 mb-6">
+          
+          
+          
+        </div>
       </div>
 
-      <!-- System Selection Cards -->
-      <div class="grid md:grid-cols-2 gap-10 mb-20 max-w-4xl mx-auto">
+      <!-- Enhanced System Selection Cards -->
+      <div class="grid lg:grid-cols-2 gap-6 mb-16 max-w-5xl mx-auto">
         <!-- E-Fund Tracker Card -->
-        <div class="bg-slate-800/30 backdrop-blur-lg border border-yellow-400/30 rounded-3xl p-10 shadow-2xl hover:shadow-3xl transform hover:-translate-y-3 transition-all duration-300 relative overflow-hidden border-t-4">
-          <div class="w-20 h-20 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-3xl flex items-center justify-center text-blue-900 text-4xl mx-auto mb-6 shadow-lg">
-            <iconify-icon icon="mdi:chart-line" class="text-4xl"></iconify-icon>
+        <div class="group bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-xl border border-yellow-400/40 rounded-lg p-3 shadow-lg hover:shadow-yellow-500/20 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
+          <!-- Animated background gradient -->
+          <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <!-- Status Badge -->
+          <div class="absolute top-4 right-4 bg-green-500/20 border border-green-400/30 rounded-full px-3 py-1">
+            <span class="text-green-300 text-xs font-medium flex items-center gap-1">
+              <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+              Active
+            </span>
           </div>
-          <div class="mb-8">
-            <h3 class="text-3xl font-bold text-white mb-4">E-Fund Tracker</h3>
-            <p class="text-white/90 mb-6 leading-relaxed">
-              Track disbursements, manage classifications, and generate comprehensive financial reports.
-            </p>
-            <ul class="space-y-2">
-              <li class="flex items-center gap-3 text-white/80"><iconify-icon icon="mdi:check" class="text-green-400 text-sm"></iconify-icon> Disbursement Management</li>
-              <li class="flex items-center gap-3 text-white/80"><iconify-icon icon="mdi:check" class="text-green-400 text-sm"></iconify-icon> Financial Reporting</li>
-              <li class="flex items-center gap-3 text-white/80"><iconify-icon icon="mdi:check" class="text-green-400 text-sm"></iconify-icon> Audit Trail</li>
-              <li class="flex items-center gap-3 text-white/80"><iconify-icon icon="mdi:check" class="text-green-400 text-sm"></iconify-icon> User Management</li>
-            </ul>
+          
+          <div class="relative z-10">
+            <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center text-slate-900 text-xl mx-auto mb-2 shadow-md group-hover:shadow-yellow-500/30 transition-all duration-300 group-hover:rotate-6">
+              <iconify-icon icon="mdi:chart-line" class="text-4xl"></iconify-icon>
+            </div>
+            
+            <div class="mb-2 text-center">
+              <h3 class="text-lg font-bold text-white mb-1 group-hover:text-yellow-200 transition-colors duration-300">E-Fund Tracker</h3>
+              <p class="text-white/90 mb-2 text-xs">
+                Financial tracking system
+              </p>
+            </div>
+            
+            <button 
+              class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/30 group-hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400/50 active:scale-95 border border-blue-400/20" 
+              (click)="navigateToEFund()"
+              [attr.aria-label]="'Access E-Fund Tracker System'">
+              <iconify-icon icon="mdi:rocket-launch" class="text-base group-hover:animate-bounce"></iconify-icon>
+              <span class="text-sm font-medium">Launch E-Fund Tracker</span>
+              <iconify-icon icon="mdi:arrow-right" class="text-base group-hover:translate-x-1 transition-transform duration-300"></iconify-icon>
+            </button>
           </div>
-          <button class="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" (click)="navigateToEFund()">
-            <iconify-icon icon="mdi:arrow-right" class="text-lg"></iconify-icon>
-            Access E-Fund Tracker
-          </button>
         </div>
 
-        <!-- Collection Card -->
-        <div class="bg-slate-800/30 backdrop-blur-lg border border-red-400/30 rounded-3xl p-10 shadow-2xl hover:shadow-3xl transform hover:-translate-y-3 transition-all duration-300 relative overflow-hidden border-t-4">
-          <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-3xl flex items-center justify-center text-white text-4xl mx-auto mb-6 shadow-lg">
-            <iconify-icon icon="mdi:coins" class="text-4xl"></iconify-icon>
+        <!-- Collection System Card -->
+        <div class="group bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-xl border border-emerald-400/40 rounded-lg p-3 shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
+          <!-- Animated background gradient -->
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <!-- Status Badge -->
+          <div class="absolute top-4 right-4 bg-orange-500/20 border border-orange-400/30 rounded-full px-3 py-1">
+            <span class="text-orange-300 text-xs font-medium flex items-center gap-1">
+              <div class="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse"></div>
+              Coming Soon
+            </span>
           </div>
-          <div class="mb-8">
-            <h3 class="text-3xl font-bold text-white mb-4">Collection System</h3>
-            <p class="text-white/90 mb-6 leading-relaxed">
-              Manage collections, track payments, and monitor revenue streams efficiently.
-            </p>
-            <ul class="space-y-2">
-              <li class="flex items-center gap-3 text-white/80"><iconify-icon icon="mdi:check" class="text-green-400 text-sm"></iconify-icon> Payment Tracking</li>
-              <li class="flex items-center gap-3 text-white/80"><iconify-icon icon="mdi:check" class="text-green-400 text-sm"></iconify-icon> Revenue Monitoring</li>
-              <li class="flex items-center gap-3 text-white/80"><iconify-icon icon="mdi:check" class="text-green-400 text-sm"></iconify-icon> Collection Reports</li>
-              <li class="flex items-center gap-3 text-white/80"><iconify-icon icon="mdi:check" class="text-green-400 text-sm"></iconify-icon> Receipt Management</li>
-            </ul>
+          
+          <div class="relative z-10">
+            <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center text-white text-xl mx-auto mb-2 shadow-md group-hover:shadow-emerald-500/30 transition-all duration-300 group-hover:rotate-6">
+              <iconify-icon icon="mdi:coins" class="text-4xl"></iconify-icon>
+            </div>
+            
+            <div class="mb-2 text-center">
+              <h3 class="text-lg font-bold text-white mb-1 group-hover:text-emerald-200 transition-colors duration-300">Collection System</h3>
+              <p class="text-white/90 mb-2 text-xs">
+                Payment collection platform
+              </p>
+            </div>
+            
+            <button 
+              class="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 cursor-not-allowed opacity-75 border border-gray-400/20 hover:opacity-80" 
+              disabled
+              [attr.aria-label]="'Collection System - Coming Soon'">
+              <iconify-icon icon="mdi:clock-outline" class="text-base animate-pulse"></iconify-icon>
+              <span class="text-sm font-medium">Coming Soon</span>
+              <iconify-icon icon="mdi:dots-horizontal" class="text-base animate-pulse"></iconify-icon>
+            </button>
           </div>
-          <button class="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" (click)="navigateToCollection()">
-            <iconify-icon icon="mdi:arrow-right" class="text-lg"></iconify-icon>
-            Access Collection System
-          </button>
         </div>
       </div>
 
-      <!-- Additional Information -->
-      <div class="grid md:grid-cols-3 gap-8 mb-10">
-        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center text-white hover:bg-white/15 transform hover:-translate-y-2 transition-all duration-300">
-          <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">
-            <iconify-icon icon="mdi:shield-check" class="text-2xl"></iconify-icon>
+      <!-- Enhanced Feature Highlights -->
+      <div class="grid md:grid-cols-3 gap-6 mb-12">
+        <div class="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/30 rounded-2xl p-8 text-center text-white hover:bg-white/20 transform hover:-translate-y-3 hover:scale-105 transition-all duration-500 hover:shadow-2xl">
+          <div class="w-20 h-20 bg-gradient-to-br from-green-400/20 to-green-600/20 border border-green-400/30 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6 group-hover:rotate-12 transition-transform duration-300">
+            <iconify-icon icon="mdi:shield-check" class="text-green-400 text-3xl"></iconify-icon>
           </div>
           <div>
-            <h4 class="text-xl font-semibold mb-2">Secure & Reliable</h4>
-            <p class="text-sm opacity-90 leading-relaxed">Built with enterprise-grade security and reliability standards.</p>
+            <h4 class="text-xl font-bold mb-3 group-hover:text-green-300 transition-colors duration-300">Secure & Reliable</h4>
+            <p class="text-sm opacity-90 leading-relaxed mb-4">Enterprise-grade security with 256-bit encryption, multi-factor authentication, and comprehensive audit trails.</p>
+            <div class="flex justify-center gap-2">
+              <span class="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded-full">SSL/TLS</span>
+              <span class="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded-full">2FA</span>
+              <span class="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded-full">Audit Logs</span>
+            </div>
           </div>
         </div>
 
-        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center text-white hover:bg-white/15 transform hover:-translate-y-2 transition-all duration-300">
-          <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">
-            <iconify-icon icon="mdi:account-group" class="text-2xl"></iconify-icon>
+        <div class="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/30 rounded-2xl p-8 text-center text-white hover:bg-white/20 transform hover:-translate-y-3 hover:scale-105 transition-all duration-500 hover:shadow-2xl">
+          <div class="w-20 h-20 bg-gradient-to-br from-blue-400/20 to-blue-600/20 border border-blue-400/30 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6 group-hover:rotate-12 transition-transform duration-300">
+            <iconify-icon icon="mdi:account-group" class="text-blue-400 text-3xl"></iconify-icon>
           </div>
           <div>
-            <h4 class="text-xl font-semibold mb-2">Role-Based Access</h4>
-            <p class="text-sm opacity-90 leading-relaxed">Customized access levels for administrators, encoders, and viewers.</p>
+            <h4 class="text-xl font-bold mb-3 group-hover:text-blue-300 transition-colors duration-300">Role-Based Access</h4>
+            <p class="text-sm opacity-90 leading-relaxed mb-4">Granular permission system with customized access levels for administrators, encoders, and viewers.</p>
+            <div class="flex justify-center gap-2">
+              <span class="bg-blue-500/20 text-blue-300 text-xs px-2 py-1 rounded-full">Admin</span>
+              <span class="bg-blue-500/20 text-blue-300 text-xs px-2 py-1 rounded-full">Encoder</span>
+              <span class="bg-blue-500/20 text-blue-300 text-xs px-2 py-1 rounded-full">Viewer</span>
+            </div>
           </div>
         </div>
 
-        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center text-white hover:bg-white/15 transform hover:-translate-y-2 transition-all duration-300">
-          <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">
-            <iconify-icon icon="mdi:chart-bar" class="text-2xl"></iconify-icon>
+        <div class="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/30 rounded-2xl p-8 text-center text-white hover:bg-white/20 transform hover:-translate-y-3 hover:scale-105 transition-all duration-500 hover:shadow-2xl">
+          <div class="w-20 h-20 bg-gradient-to-br from-purple-400/20 to-purple-600/20 border border-purple-400/30 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6 group-hover:rotate-12 transition-transform duration-300">
+            <iconify-icon icon="mdi:chart-bar" class="text-purple-400 text-3xl"></iconify-icon>
           </div>
           <div>
-            <h4 class="text-xl font-semibold mb-2">Comprehensive Reporting</h4>
-            <p class="text-sm opacity-90 leading-relaxed">Generate detailed reports for auditing and compliance requirements.</p>
+            <h4 class="text-xl font-bold mb-3 group-hover:text-purple-300 transition-colors duration-300">Advanced Reporting</h4>
+            <p class="text-sm opacity-90 leading-relaxed mb-4">Real-time analytics, automated report generation, and export capabilities for auditing and compliance.</p>
+            <div class="flex justify-center gap-2">
+              <span class="bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded-full">PDF</span>
+              <span class="bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded-full">Excel</span>
+              <span class="bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded-full">Real-time</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-slate-900/60 backdrop-blur-md border-t border-yellow-400/15 py-8 mt-auto relative z-10">
-    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-white">
-      <div class="text-center md:text-left mb-4 md:mb-0">
-        <p class="text-sm text-yellow-100">&copy; {{ currentYear }} Philippine National Police. All rights reserved.</p>
-        <p class="text-xs opacity-70 mt-1 text-gray-400">Electronic Fund Disbursement Tracking and Reporting System v1.0</p>
-        <p class="text-xs opacity-60 mt-1 text-gray-500">🇵🇭 Republic of the Philippines</p>
+  <!-- Enhanced Footer -->
+  <footer class="bg-slate-900/80 backdrop-blur-xl border-t border-yellow-400/20 py-12 mt-auto relative z-10">
+    <div class="max-w-7xl mx-auto px-6">
+      <!-- Main Footer Content -->
+      <div class="grid md:grid-cols-3 gap-8 mb-8">
+        <!-- Organization Info -->
+        <div class="text-center md:text-left">
+          <div class="flex items-center justify-center md:justify-start gap-3 mb-4">
+            <div class="w-8 h-8 bg-yellow-400/20 rounded-lg flex items-center justify-center">
+              <iconify-icon icon="mdi:shield-star" class="text-yellow-400 text-lg"></iconify-icon>
+            </div>
+            <span class="text-yellow-200 font-semibold">PNP Financial Systems</span>
+          </div>
+          <p class="text-sm text-gray-300 mb-2">Electronic Fund Disbursement Tracking</p>
+          <p class="text-sm text-gray-300 mb-4">and Reporting System v2.0</p>
+          <div class="flex items-center justify-center md:justify-start gap-2 text-xs text-gray-400">
+            <iconify-icon icon="mdi:flag" class="text-red-400"></iconify-icon>
+            <span>Republic of the Philippines</span>
+          </div>
+        </div>
+        
+        <!-- Quick Links -->
+        <div class="text-center">
+          <h5 class="text-white font-semibold mb-4">Quick Access</h5>
+          <div class="space-y-2">
+            <a href="#" class="block text-sm text-gray-300 hover:text-yellow-200 transition-colors duration-200 hover:underline">System Documentation</a>
+            <a href="#" class="block text-sm text-gray-300 hover:text-yellow-200 transition-colors duration-200 hover:underline">User Manual</a>
+            <a href="#" class="block text-sm text-gray-300 hover:text-yellow-200 transition-colors duration-200 hover:underline">Training Resources</a>
+            <a href="#" class="block text-sm text-gray-300 hover:text-yellow-200 transition-colors duration-200 hover:underline">System Status</a>
+          </div>
+        </div>
+        
+        <!-- Support & Contact -->
+        <div class="text-center md:text-right">
+          <h5 class="text-white font-semibold mb-4">Support & Contact</h5>
+          <div class="space-y-2">
+            <a href="#" class="text-sm text-gray-300 hover:text-yellow-200 transition-colors duration-200 hover:underline flex items-center justify-center md:justify-end gap-2">
+              <iconify-icon icon="mdi:help-circle" class="text-blue-400"></iconify-icon>
+              Help Center
+            </a>
+            <a href="#" class="text-sm text-gray-300 hover:text-yellow-200 transition-colors duration-200 hover:underline flex items-center justify-center md:justify-end gap-2">
+              <iconify-icon icon="mdi:phone" class="text-green-400"></iconify-icon>
+              Technical Support
+            </a>
+            <a href="#" class="text-sm text-gray-300 hover:text-yellow-200 transition-colors duration-200 hover:underline flex items-center justify-center md:justify-end gap-2">
+              <iconify-icon icon="mdi:email" class="text-purple-400"></iconify-icon>
+              Contact Us
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="flex gap-6">
-        <a href="#" class="text-sm text-yellow-200 hover:text-yellow-100 hover:underline transition-colors duration-200">Support</a>
-        <a href="#" class="text-sm text-yellow-200 hover:text-yellow-100 hover:underline transition-colors duration-200">Documentation</a>
-        <a href="#" class="text-sm text-yellow-200 hover:text-yellow-100 hover:underline transition-colors duration-200">Contact</a>
+      
+      <!-- Footer Bottom -->
+      <div class="border-t border-gray-700/50 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <div class="text-center md:text-left mb-4 md:mb-0">
+          <p class="text-sm text-yellow-100">&copy; {{ currentYear }} Philippine National Police. All rights reserved.</p>
+          <p class="text-xs text-gray-400 mt-1">Developed with ❤️ for the Filipino people</p>
+        </div>
+        
+        <!-- System Status Indicator -->
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 bg-green-500/20 px-3 py-1 rounded-full border border-green-400/30">
+            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span class="text-green-300 text-xs font-medium">All Systems Operational</span>
+          </div>
+          <div class="text-xs text-gray-400">Last updated: {{ getCurrentTime() }}</div>
+        </div>
       </div>
     </div>
   </footer>
