@@ -24,6 +24,10 @@ export const adminRoutes: Routes = [
         loadChildren: () => import('./manage-classifications/manage-classifications.routes').then(m => m.manageClassificationsRoutes)
       },
       {
+        path: 'session-management',
+        loadComponent: () => import('./session-management/session-management.component').then(m => m.SessionManagementComponent)
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

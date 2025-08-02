@@ -51,17 +51,71 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 px-6 py-4" *ngIf="showFooter">
-      <div class="flex items-center justify-between">
-        <div class="text-sm text-gray-600">
-          <p>&copy; 2024 E-Fund Tracker. Government Financial Management System.</p>
+    <footer class="bg-gradient-to-r from-blue-900 to-blue-800 border-t-4 border-yellow-400 px-6 py-6" *ngIf="showFooter">
+      <div class="max-w-7xl mx-auto">
+        <!-- Main Footer Content -->
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+          <!-- Left Section - Government Branding -->
+          <div class="flex flex-col lg:flex-row items-center gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span class="text-blue-900 font-bold text-xl">🇵🇭</span>
+              </div>
+              <div class="text-center lg:text-left">
+                <h3 class="text-white font-semibold text-lg">E-Fund Tracker</h3>
+                <p class="text-blue-200 text-sm">Government Financial Management System</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center Section - Links -->
+          <div class="flex flex-wrap items-center gap-6 text-sm">
+            <a href="#" class="text-blue-200 hover:text-white transition-colors duration-200 flex items-center gap-2">
+              <span>📚</span> User Manual
+            </a>
+            <span class="text-blue-400">•</span>
+            <a href="#" class="text-blue-200 hover:text-white transition-colors duration-200 flex items-center gap-2">
+              <span>🛠️</span> Technical Support
+            </a>
+            <span class="text-blue-400">•</span>
+            <a href="#" class="text-blue-200 hover:text-white transition-colors duration-200 flex items-center gap-2">
+              <span>📞</span> Help Desk
+            </a>
+          </div>
+
+          <!-- Right Section - Version & Status -->
+          <div class="flex flex-col items-center lg:items-end gap-2">
+            <div class="flex items-center gap-3">
+              <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                System Online
+              </span>
+              <span class="bg-blue-700 text-blue-200 px-3 py-1 rounded-full text-xs font-medium">
+                v1.0.0
+              </span>
+            </div>
+          </div>
         </div>
-        <div class="flex items-center gap-4 text-sm text-gray-500">
-          <span class="font-medium">v1.0.0</span>
-          <span class="text-gray-300">•</span>
-          <a href="#" class="text-indigo-600 hover:text-indigo-700 transition-colors duration-200">Help</a>
-          <span class="text-gray-300">•</span>
-          <a href="#" class="text-indigo-600 hover:text-indigo-700 transition-colors duration-200">Support</a>
+
+        <!-- Bottom Section - Copyright & Compliance -->
+        <div class="mt-6 pt-4 border-t border-blue-700">
+          <div class="flex flex-col lg:flex-row items-center justify-between gap-4 text-sm">
+            <div class="text-center lg:text-left">
+              <p class="text-blue-200">
+                &copy; {{ currentYear }} Republic of the Philippines. All rights reserved.
+              </p>
+              <p class="text-blue-300 text-xs mt-1">
+                Developed in compliance with government IT standards and data privacy regulations.
+              </p>
+            </div>
+            <div class="flex items-center gap-4 text-xs text-blue-300">
+              <span>🔒 Secure</span>
+              <span>•</span>
+              <span>📊 Audit-Ready</span>
+              <span>•</span>
+              <span>✅ Compliant</span>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

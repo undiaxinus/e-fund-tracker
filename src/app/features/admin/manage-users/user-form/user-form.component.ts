@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { SupabaseService } from '../../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-user-form',
@@ -243,7 +244,8 @@ export class UserFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private supabaseService: SupabaseService
   ) {
     this.userForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -303,21 +305,66 @@ export class UserFormComponent implements OnInit {
     }
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.userForm.valid) {
       this.isSubmitting = true;
       const formData = this.userForm.value;
       
       console.log('Submitting user data:', formData);
       
-      // Simulate API call
-      setTimeout(() => {
-        this.isSubmitting = false;
-        alert(`User ${this.isEditMode ? 'updated' : 'created'} successfully!`);
+      try {
+        if (this.isEditMode) {
+          // Update existing user
+          const updateData = {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            email: formData.email,
+            role: formData.role.toUpperCase(),
+            permission: formData.role === 'user' ? formData.permission.toUpperCase() : null,
+            is_active: formData.isActive
+          };
+          
+          const { data, error } = await this.supabaseService.updateUser(this.userId!, updateData);
+          
+          if (error) {
+            console.error('Error updating user:', error);
+            alert('Error updating user: ' + error.message);
+            return;
+          }
+          
+          alert('User updated successfully!');
+        } else {
+          // Create new user
+          const userData = {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            email: formData.email,
+            role: formData.role.toUpperCase(),
+            permission: formData.role === 'user' ? formData.permission.toUpperCase() : null,
+            is_active: formData.isActive,
+            password_hash: formData.password // This will be hashed by SupabaseService
+          };
+          
+          const { data, error } = await this.supabaseService.createUser(userData);
+          
+          if (error) {
+            console.error('Error creating user:', error);
+            alert('Error creating user: ' + error.message);
+            return;
+          }
+          
+          alert('User created successfully!');
+        }
+        
+        // Navigate back to users list
         this.router.navigate(['../'], { relativeTo: this.route });
-      }, 2000);
-      
-      // TODO: Implement actual API call
+        
+      } catch (error: any) {
+        console.error('Unexpected error:', error);
+        alert('An unexpected error occurred: ' + error.message);
+      } finally {
+        this.isSubmitting = false;
+      }
     } else {
       // Mark all fields as touched to show validation errors
       Object.keys(this.userForm.controls).forEach(key => {
@@ -326,19 +373,36 @@ export class UserFormComponent implements OnInit {
     }
   }
 
-  private loadUser() {
-    // TODO: Load user data from service
-    console.log('Loading user:', this.userId);
+  private async loadUser() {
+    if (!this.userId) return;
     
-    // Simulate loading user data
-    const mockUser = {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      role: 'admin',
-      isActive: true
-    };
-    
-    this.userForm.patchValue(mockUser);
+    try {
+      console.log('Loading user:', this.userId);
+      
+      const { data, error } = await this.supabaseService.getUserById(this.userId);
+      
+      if (error) {
+        console.error('Error loading user:', error);
+        alert('Error loading user data: ' + error.message);
+        return;
+      }
+      
+      if (data) {
+        // Map database fields to form fields
+        const userData = {
+          firstName: data.first_name,
+          lastName: data.last_name,
+          email: data.email,
+          role: data.role.toLowerCase(),
+          permission: data.permission ? data.permission.toLowerCase() : '',
+          isActive: data.is_active
+        };
+        
+        this.userForm.patchValue(userData);
+      }
+    } catch (error: any) {
+      console.error('Unexpected error loading user:', error);
+      alert('An unexpected error occurred while loading user data.');
+    }
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable({
   providedIn: 'root'
@@ -154,7 +155,7 @@ export class SupabaseService {
   // Database operations for Users
   async getUsers() {
     const { data, error } = await this.supabase
-      .from('users')
+      .from('User')
       .select('*')
       .order('created_at', { ascending: false });
     return { data, error };
@@ -162,7 +163,7 @@ export class SupabaseService {
 
   async getUserById(id: string) {
     const { data, error } = await this.supabase
-      .from('users')
+      .from('User')
       .select('*')
       .eq('id', id)
       .single();
@@ -170,8 +171,14 @@ export class SupabaseService {
   }
 
   async createUser(userData: any) {
+    // Hash the password before saving
+    if (userData.password_hash) {
+      const saltRounds = 10;
+      userData.password_hash = await bcrypt.hash(userData.password_hash, saltRounds);
+    }
+    
     const { data, error } = await this.supabase
-      .from('users')
+      .from('User')
       .insert([userData])
       .select()
       .single();
@@ -179,8 +186,14 @@ export class SupabaseService {
   }
 
   async updateUser(id: string, userData: any) {
+    // Hash the password if it's being updated
+    if (userData.password_hash) {
+      const saltRounds = 10;
+      userData.password_hash = await bcrypt.hash(userData.password_hash, saltRounds);
+    }
+    
     const { data, error } = await this.supabase
-      .from('users')
+      .from('User')
       .update(userData)
       .eq('id', id)
       .select()
@@ -190,9 +203,113 @@ export class SupabaseService {
 
   async deleteUser(id: string) {
     const { data, error } = await this.supabase
-      .from('users')
+      .from('User')
       .delete()
       .eq('id', id);
+    return { data, error };
+  }
+
+  // Password verification method
+  async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    return await bcrypt.compare(plainPassword, hashedPassword);
+  }
+
+  // Get user by email for authentication
+  async getUserByEmail(email: string) {
+    const { data, error } = await this.supabase
+      .from('User')
+      .select('*')
+      .eq('email', email)
+      .single();
+    return { data, error };
+  }
+
+  // UserSession management methods
+  async createUserSession(userId: string): Promise<{ data: any; error: any; sessionToken?: string }> {
+    const sessionToken = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+    
+    const { data, error } = await this.supabase
+      .from('UserSession')
+      .insert({
+        user_id: userId,
+        session_token: sessionToken,
+        expires_at: expiresAt.toISOString()
+      })
+      .select()
+      .single();
+    
+    return { data, error, sessionToken };
+  }
+
+  async validateSession(sessionToken: string) {
+    const { data, error } = await this.supabase
+      .from('UserSession')
+      .select(`
+        *,
+        User (
+          id,
+          email,
+          first_name,
+          last_name,
+          role,
+          permission,
+          department,
+          is_active
+        )
+      `)
+      .eq('session_token', sessionToken)
+      .gt('expires_at', new Date().toISOString())
+      .single();
+    
+    return { data, error };
+  }
+
+  async deleteSession(sessionToken: string) {
+    const { data, error } = await this.supabase
+      .from('UserSession')
+      .delete()
+      .eq('session_token', sessionToken);
+    
+    return { data, error };
+  }
+
+  async deleteAllUserSessions(userId: string) {
+    const { error } = await this.supabase
+      .from('UserSession')
+      .delete()
+      .eq('user_id', userId);
+    
+    if (error) {
+      console.error('Error deleting user sessions:', error);
+      throw error;
+    }
+    
+    return { error };
+  }
+
+  async cleanupExpiredSessions() {
+    const { error } = await this.supabase
+      .from('UserSession')
+      .delete()
+      .lt('expires_at', new Date().toISOString());
+    
+    if (error) {
+      console.error('Error cleaning up expired sessions:', error);
+      throw error;
+    }
+    
+    return { error };
+  }
+
+  async getUserActiveSessions(userId: string) {
+    const { data, error } = await this.supabase
+      .from('UserSession')
+      .select('*')
+      .eq('user_id', userId)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false });
+    
     return { data, error };
   }
 

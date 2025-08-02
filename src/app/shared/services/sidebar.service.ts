@@ -72,9 +72,10 @@ export class SidebarService {
       route: '/admin',
       roles: ['ADMIN'],
       children: [
-        { label: 'User Management', icon: '👥', route: '/admin/users', roles: ['ADMIN'] },
-        { label: 'Role Management', icon: '🔐', route: '/admin/roles', roles: ['ADMIN'] },
-        { label: 'Classifications', icon: '🏷️', route: '/admin/classifications', roles: ['ADMIN'] },
+        { label: 'User Management', icon: '👥', route: '/admin/manage-users', roles: ['ADMIN'] },
+        { label: 'Role Management', icon: '🔐', route: '/admin/manage-roles', roles: ['ADMIN'] },
+        { label: 'Classifications', icon: '🏷️', route: '/admin/manage-classifications', roles: ['ADMIN'] },
+        { label: 'Session Management', icon: '🔒', route: '/admin/session-management', roles: ['ADMIN'] },
         { label: 'System Settings', icon: '⚙️', route: '/admin/settings', roles: ['ADMIN'] },
         { label: 'Audit Logs', icon: '📋', route: '/admin/audit', roles: ['ADMIN'] }
       ]

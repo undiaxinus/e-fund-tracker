@@ -56,13 +56,13 @@ async function testConnection() {
     
     console.log('\n🔄 Testing database connection...');
     const { data, error } = await supabase
-      .from('users')
+      .from('User')
       .select('count', { count: 'exact', head: true });
     
     if (error) {
       console.error('❌ Database connection failed:', error.message);
       
-      if (error.message.includes('relation "users" does not exist')) {
+      if (error.message.includes('relation "User" does not exist')) {
         console.log('\n📝 Database schema not set up:');
         console.log('1. Go to your Supabase dashboard');
         console.log('2. Open SQL Editor');

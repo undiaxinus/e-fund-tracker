@@ -98,72 +98,141 @@ export class AuthService {
   }
 
   private async initializeAuth() {
-    // Listen for auth state changes
-    this.supabaseService.currentUser$.subscribe(async (user: User | null) => {
-      if (user) {
-        // Get user profile from database
-        const { data: userProfile } = await this.supabaseService.getUserById(user.id);
-        if (userProfile) {
-          this.currentUserSubject.next(userProfile as AppUser);
+    // Check for saved session token on app start
+    const sessionToken = localStorage.getItem('sessionToken');
+    if (sessionToken) {
+      try {
+        // Validate session with database
+        const { data: sessionData, error } = await this.supabaseService.validateSession(sessionToken);
+        
+        if (sessionData && !error && sessionData.User) {
+          const userToSet = {
+            id: sessionData.User.id,
+            email: sessionData.User.email,
+            username: sessionData.User.email.split('@')[0],
+            firstName: sessionData.User.first_name,
+            lastName: sessionData.User.last_name,
+            role: sessionData.User.role,
+            department: sessionData.User.department,
+            isActive: sessionData.User.is_active
+          };
+          
+          this.currentUserSubject.next(userToSet);
           this.isAuthenticatedSubject.next(true);
+          console.log('Restored user session from database:', userToSet);
+        } else {
+          // Invalid or expired session
+          localStorage.removeItem('sessionToken');
+          localStorage.removeItem('currentUser');
+          this.isAuthenticatedSubject.next(false);
         }
-      } else {
-        this.currentUserSubject.next(null);
+      } catch (error) {
+        console.error('Error validating session:', error);
+        localStorage.removeItem('sessionToken');
+        localStorage.removeItem('currentUser');
         this.isAuthenticatedSubject.next(false);
       }
-    });
+    } else {
+      // No saved session, ensure we're not authenticated
+      this.isAuthenticatedSubject.next(false);
+    }
+
+    // Cleanup expired sessions periodically
+    this.setupSessionCleanup();
+  }
+
+  private setupSessionCleanup() {
+    // Clean up expired sessions every hour
+    setInterval(async () => {
+      try {
+        await this.supabaseService.cleanupExpiredSessions();
+      } catch (error) {
+        console.error('Error cleaning up expired sessions:', error);
+      }
+    }, 60 * 60 * 1000); // 1 hour
   }
 
   async signIn(email: string, password: string): Promise<{ success: boolean; error?: string }> {
     try {
-      // First check if this is a demo user for fallback
+      // First try to get user from database
+      const { data: dbUser, error: dbError } = await this.supabaseService.getUserByEmail(email);
+      
+      if (dbUser && !dbError) {
+        // Verify password using bcrypt
+        const isPasswordValid = await this.supabaseService.verifyPassword(password, dbUser.password_hash);
+        
+        if (isPasswordValid) {
+          // Password is correct, create session
+          const { data: sessionData, error: sessionError, sessionToken } = await this.supabaseService.createUserSession(dbUser.id);
+          
+          if (sessionError || !sessionToken) {
+            console.error('Error creating session:', sessionError);
+            return { success: false, error: 'Failed to create session' };
+          }
+          
+          const userToSet = {
+            id: dbUser.id,
+            email: dbUser.email,
+            username: dbUser.email.split('@')[0],
+            firstName: dbUser.first_name,
+            lastName: dbUser.last_name,
+            role: dbUser.role,
+            department: dbUser.department,
+            isActive: dbUser.is_active
+          };
+          
+          this.currentUserSubject.next(userToSet);
+          this.isAuthenticatedSubject.next(true);
+          
+          // Save session token and user data to localStorage
+          localStorage.setItem('sessionToken', sessionToken);
+          localStorage.setItem('currentUser', JSON.stringify(userToSet));
+          
+          // Update last login time
+          await this.supabaseService.updateUser(dbUser.id, {
+            last_login: new Date().toISOString()
+          });
+          
+          // Navigate to appropriate dashboard based on role
+          const dashboardRoute = this.getDashboardRouteForRole(userToSet.role);
+          this.router.navigate([dashboardRoute]);
+          
+          return { success: true };
+        } else {
+          return { success: false, error: 'Invalid email or password' };
+        }
+      }
+      
+      // Fallback to mock users for demo purposes
       const mockUser = this.mockUsers.find(user => 
         user.email === email && user.password === password
       );
       
-      // Try Supabase authentication first
-      const { data, error } = await this.supabaseService.signIn(email, password);
-      
-      if (error && !mockUser) {
-        return { success: false, error: error.message || 'Authentication failed' };
-      }
-      
-      if (data?.user || mockUser) {
-        let userToSet;
+      if (mockUser) {
+        // Use mock user data as fallback
+        const userToSet = mockUser.user;
+        // Simulate loading delay for mock users
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
-        if (data?.user) {
-           // Use Supabase user data
-           // You'll need to fetch user profile from your users table
-           // For now, using basic user info
-           userToSet = {
-             id: data.user.id,
-             email: data.user.email || '',
-             username: data.user.email?.split('@')[0] || '',
-             firstName: (data.user.user_metadata as any)?.['firstName'] || 'User',
-             lastName: (data.user.user_metadata as any)?.['lastName'] || 'Name',
-             role: (data.user.user_metadata as any)?.['role'] || 'VIEWER',
-             department: (data.user.user_metadata as any)?.['department'],
-             isActive: true
-           };
-        } else {
-          // Use mock user data as fallback
-          userToSet = mockUser!.user;
-          // Simulate loading delay for mock users
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        
-        // Set the authenticated user
-        this.currentUserSubject.next(userToSet);
-        this.isAuthenticatedSubject.next(true);
-        
-        // Navigate to appropriate dashboard based on role
-        const dashboardRoute = this.getDashboardRouteForRole(userToSet.role);
-        this.router.navigate([dashboardRoute]);
-        
-        return { success: true };
+        // For mock users, create a mock session (fallback)
+         const mockSessionToken = 'mock_' + crypto.randomUUID();
+         
+         // Set the authenticated user
+         this.currentUserSubject.next(userToSet);
+         this.isAuthenticatedSubject.next(true);
+         
+         // Save mock session token and user data to localStorage
+         localStorage.setItem('sessionToken', mockSessionToken);
+         localStorage.setItem('currentUser', JSON.stringify(userToSet));
+         
+         // Navigate to appropriate dashboard based on role
+         const dashboardRoute = this.getDashboardRouteForRole(userToSet.role);
+         this.router.navigate([dashboardRoute]);
+         
+         return { success: true };
       }
 
-      return { success: false, error: 'Authentication failed' };
+      return { success: false, error: 'Invalid email or password' };
     } catch (error: any) {
       console.error('Sign in error:', error);
       return { success: false, error: error?.message || 'An unexpected error occurred' };
@@ -235,13 +304,29 @@ export class AuthService {
 
   async signOut(): Promise<void> {
     const currentUser = this.currentUserSubject.value;
+    const sessionToken = localStorage.getItem('sessionToken');
+    
     if (currentUser) {
       await this.logAuditAction('LOGOUT', 'User', currentUser.id);
+    }
+    
+    // Delete session from database if it exists and is not a mock session
+    if (sessionToken && !sessionToken.startsWith('mock_')) {
+      try {
+        await this.supabaseService.deleteSession(sessionToken);
+      } catch (error) {
+        console.error('Error deleting session:', error);
+      }
     }
     
     await this.supabaseService.signOut();
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
+    
+    // Clear localStorage
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('currentUser');
+    
     this.router.navigate(['/auth/login']);
   }
 
@@ -325,6 +410,81 @@ export class AuthService {
     }
     
     return results;
+  }
+
+  // Session management methods for admin use
+  async getUserActiveSessions(userId: string) {
+    if (!this.isAdmin()) {
+      throw new Error('Unauthorized: Only admins can view user sessions');
+    }
+    return await this.supabaseService.getUserActiveSessions(userId);
+  }
+
+  async forceLogoutUser(userId: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.isAdmin()) {
+      return { success: false, error: 'Unauthorized: Only admins can force logout users' };
+    }
+    
+    try {
+      // Delete all sessions for the user
+      const result = await this.supabaseService.deleteAllUserSessions(userId);
+      
+      if (result.error) {
+        return { success: false, error: 'Failed to delete user sessions' };
+      }
+      
+      // Log the action
+      await this.logAuditAction('FORCE_LOGOUT', 'User', userId);
+      
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Failed to force logout user' };
+    }
+  }
+
+  async getCurrentSessionInfo() {
+    const sessionToken = localStorage.getItem('sessionToken');
+    if (!sessionToken || sessionToken.startsWith('mock_')) {
+      return null;
+    }
+    
+    try {
+      const { data, error } = await this.supabaseService.validateSession(sessionToken);
+      return error ? null : data;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async extendCurrentSession(): Promise<{ success: boolean; error?: string }> {
+    const sessionToken = localStorage.getItem('sessionToken');
+    if (!sessionToken || sessionToken.startsWith('mock_')) {
+      return { success: false, error: 'No valid session to extend' };
+    }
+    
+    try {
+      // Delete current session
+      await this.supabaseService.deleteSession(sessionToken);
+      
+      // Create new session
+      const currentUser = this.getCurrentUser();
+      if (!currentUser) {
+        return { success: false, error: 'No current user found' };
+      }
+      
+      const { sessionToken: newToken, error } = await this.supabaseService.createUserSession(currentUser.id);
+      
+      if (error || !newToken) {
+        return { success: false, error: 'Failed to create new session' };
+      }
+      
+      // Update localStorage with new token
+      localStorage.setItem('sessionToken', newToken);
+      
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Failed to extend session' };
+    }
   }
 
   private async logAuditAction(action: string, entityType: string, entityId?: string) {

@@ -20,6 +20,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   isSidebarCollapsed = false;
   isMobileMenuOpen = false;
   layoutState: LayoutState;
+  currentYear = new Date().getFullYear();
   
   private subscriptions: Subscription[] = [];
 
