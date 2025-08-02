@@ -1,28 +1,7 @@
 <div class="min-h-screen bg-gray-50 p-6">
-  <!-- Header Section -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div class="flex-1">
-        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">{{ getGreeting() }}, {{ getUserDisplayName() }}! 👋</h1>
-        <p class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-full mb-2">{{ getRoleDisplayName() }}</p>
-        <p class="text-gray-600">{{ currentDate | date:'fullDate' }}</p>
-      </div>
-      <div class="flex-shrink-0">
-        <button class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" 
-                (click)="refreshData()" 
-                [disabled]="isLoading">
-          <span class="text-lg" [class.animate-spin]="isLoading">🔄</span>
-          Refresh
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-12">
-    <div class="text-4xl mb-4 animate-spin">⏳</div>
-    <p class="text-gray-600">Loading dashboard data...</p>
-  </div>
+
+
 
   <!-- Dashboard Content -->
   <div *ngIf="!isLoading" class="space-y-6">

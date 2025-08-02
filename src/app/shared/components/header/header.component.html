@@ -12,27 +12,7 @@
         </svg>
       </button>
       
-      <!-- System Branding and Page Title -->
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2">
-          <div class="p-1.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-sm">
-            <img src="assets/images/finance-logo.png" alt="E-Fund Tracker" class="h-6 w-6">
-          </div>
-          <div class="hidden sm:block">
-            <h1 class="text-base font-bold text-gray-900">E-Fund Tracker</h1>
-            <p class="text-xs text-gray-500">Fund Management System</p>
-          </div>
-        </div>
-        
-        <!-- Page Title Separator -->
-        <div class="hidden md:block w-px h-8 bg-gray-300 mx-2"></div>
-        
-        <!-- Current Page Title -->
-        <div class="hidden md:block">
-          <h2 class="text-base font-semibold text-gray-900">{{ getCurrentPageTitle() }}</h2>
-          <p class="text-sm text-gray-600">{{ getCurrentPageDescription() }}</p>
-        </div>
-      </div>
+
     </div>
 
     <div class="flex items-center gap-4">
@@ -42,19 +22,7 @@
         <span class="text-sm font-medium text-green-700">System Online</span>
       </div>
 
-      <!-- Notifications -->
-      <div class="relative">
-        <button class="relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-all duration-200"
-                [class.has-notifications]="hasNotifications()">
-          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 00-6 6v3.75a6 6 0 006 6h3a6 6 0 006-6V9.75a6 6 0 00-6-6h-3z"/>
-          </svg>
-          <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium" 
-                *ngIf="hasNotifications()">
-            {{ getNotificationCount() }}
-          </span>
-        </button>
-      </div>
+
 
       <!-- User Menu -->
       <div class="relative group">
@@ -108,4 +76,4 @@
       </div>
     </div>
   </div>
-</header> 
+</header>
